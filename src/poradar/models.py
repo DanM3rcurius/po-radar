@@ -93,6 +93,28 @@ class Evidence(BaseModel):
     signal: str
     value: float | str
     note: str
+    quote: str | None = None  # the receipt: the sentence or datum this rests on
+
+
+class WorksheetRow(BaseModel):
+    """One NCI-style category: 1 = not present, 5 = overwhelmingly present."""
+
+    n: int
+    category: str
+    score: int = Field(ge=1, le=5)
+    basis: Literal["deterministic", "semantic", "human"]
+    receipt: str
+    lower_it: str  # what evidence would drop this row toward 1
+
+
+class Worksheet(BaseModel):
+    """20 categories x 1..5 = 20..100, rescaled to 0..100 so 'all absent' reads 0 (NCI v8.3 shape)."""
+
+    rows: list[WorksheetRow]
+    total: int = Field(ge=0, le=100)
+    reading: str
+    auto_rows: int
+    human_rows: int
 
 
 class RadarResult(BaseModel):
@@ -112,6 +134,8 @@ class RadarResult(BaseModel):
     semantic: SemanticResult | None = None
     needs_review: bool = False
     brief: str | None = None
+    worksheet: Worksheet | None = None
+    nci_reading: str = ""
     disclaimer: str = DISCLAIMER
     generated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -123,17 +147,27 @@ class RadarResult(BaseModel):
             raise ValueError("a result must carry falsifiers")
         if self.disclaimer != DISCLAIMER:
             raise ValueError("the disclaimer is not optional")
+        if not self.nci_reading:
+            self.nci_reading = NCI_READINGS[self.band]
         return self
 
     def to_json_dict(self) -> dict[str, Any]:
         return self.model_dump(mode="json")
 
 
+NCI_READINGS: dict[Band, str] = {
+    "quiet": "0-25: low probability of an engineered operation; likely organic",
+    "watch": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "dense": "51-75: strong engineered elements; anomalies too frequent to be coincidental",
+    "saturated": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+}
+
+
 def band_for(ers: float) -> Band:
-    if ers < 25:
+    if ers <= 25:
         return "quiet"
-    if ers < 50:
+    if ers <= 50:
         return "watch"
-    if ers < 75:
+    if ers <= 75:
         return "dense"
     return "saturated"

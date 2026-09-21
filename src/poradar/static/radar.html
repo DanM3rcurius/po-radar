@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Psyop Radar</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f4f6f8;
+  --panel-bg: #ffffff;
+  --ink: #16202b;
+  --ink-dim: #5a6b7c;
+  --ink-faint: #8595a5;
+  --line: #d6dee6;
+  --line-soft: #e7edf2;
+  --accent: #1f6f8b;
+  --accent-ink: #ffffff;
+  --grid: #c3d0da;
+  --grid-soft: #dde6ec;
+  --sweep: #1f6f8b;
+  --band-quiet: #2f8f6f;
+  --band-watch: #b8860b;
+  --band-dense: #c2661f;
+  --band-saturated: #b3352f;
+  --chip-bg: #eef3f7;
+  --shadow: 0 8px 28px rgba(20, 35, 50, .14);
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1218;
+    --panel-bg: #141c24;
+    --ink: #e6edf3;
+    --ink-dim: #a3b1bf;
+    --ink-faint: #75848f;
+    --line: #26323d;
+    --line-soft: #1c262f;
+    --accent: #5fc2d8;
+    --accent-ink: #06121a;
+    --grid: #2b3a46;
+    --grid-soft: #1d2831;
+    --sweep: #5fc2d8;
+    --band-quiet: #4fc79b;
+    --band-watch: #e0b44a;
+    --band-dense: #ef9350;
+    --band-saturated: #f4645c;
+    --chip-bg: #1b252e;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .55);
+  }
+}
+* { box-sizing: border-box; }
+html, body { max-width: 100%; overflow-x: hidden; }
+body {
+  margin: 0;
+  padding: 0 16px 24px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+header { max-width: 1180px; margin: 0 auto; padding: 20px 0 8px; }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+h1 { font-size: 22px; margin: 0; letter-spacing: .02em; }
+.tagline { color: var(--ink-dim); font-size: 13px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.legend li {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ink-dim);
+  background: var(--chip-bg); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 10px;
+}
+.swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--ink-faint); display: inline-block; }
+.swatch.quiet { background: var(--band-quiet); }
+.swatch.watch { background: var(--band-watch); }
+.swatch.dense { background: var(--band-dense); }
+.swatch.saturated { background: var(--band-saturated); }
+.swatch.lexonly {
+  background: repeating-linear-gradient(45deg, var(--ink-faint) 0 2px, transparent 2px 4px);
+  border: 1px solid var(--ink-faint);
+}
+.banner {
+  max-width: 1180px; margin: 14px auto 0;
+  background: var(--chip-bg); border: 1px solid var(--line); border-left: 4px solid var(--band-watch);
+  border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--ink-dim);
+}
+main {
+  max-width: 1180px; margin: 16px auto 0;
+  display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 340px; align-items: start;
+}
+@media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
+.card {
+  background: var(--panel-bg); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px;
+}
+.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-dim); margin: 0 0 8px; }
+#radar { display: block; width: 100%; max-width: 780px; margin: 0 auto; height: auto; touch-action: manipulation; }
+.ring { fill: none; stroke: var(--grid); stroke-width: 1; }
+.ring.alt { stroke: var(--grid-soft); }
+.spoke { stroke: var(--grid-soft); stroke-width: 1; }
+.ringlabel { fill: var(--ink-faint); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.centerlabel { fill: var(--ink-faint); font-size: 10px; letter-spacing: .06em; }
+.sweep { animation: sweep 9s linear infinite; }
+@keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .sweep { animation: none; opacity: .18; } }
+.blip { cursor: pointer; }
+.blip:focus { outline: none; }
+.blip:focus-visible .dot, .blip.sel .dot { stroke: var(--accent); stroke-width: 3; }
+.dot { stroke: var(--panel-bg); stroke-width: 1.5; }
+.blip.lexonly .dot { stroke-dasharray: 3 2; stroke: var(--ink-faint); }
+.halo { stroke: none; }
+.blabel { fill: var(--ink); paint-order: stroke; stroke: var(--panel-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+.blabel .fals { fill: var(--ink-dim); }
+.leader { stroke: var(--grid); stroke-width: 1; fill: none; }
+.blip.lexonly .blabel { fill: var(--ink-dim); }
+ul.narratives { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 620px; overflow-y: auto; }
+.nrow {
+  width: 100%; text-align: left; cursor: pointer; font: inherit;
+  background: var(--panel-bg); color: var(--ink);
+  border: 1px solid var(--line); border-left: 4px solid var(--ink-faint);
+  border-radius: 9px; padding: 8px 10px; display: grid; gap: 3px;
+}
+.nrow:hover, .nrow:focus-visible { border-color: var(--accent); outline: none; }
+.nrow.sel { box-shadow: inset 0 0 0 1px var(--accent); }
+.nrow.quiet { border-left-color: var(--band-quiet); }
+.nrow.watch { border-left-color: var(--band-watch); }
+.nrow.dense { border-left-color: var(--band-dense); }
+.nrow.saturated { border-left-color: var(--band-saturated); }
+.nrow .top { display: flex; align-items: baseline; gap: 8px; }
+.nrow .ers { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; }
+.nrow .ttl { font-weight: 600; font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
+.nrow .fals { font-size: 11px; color: var(--ink-dim); overflow-wrap: anywhere; }
+.chip {
+  display: inline-block; font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+  border: 1px solid var(--line); border-radius: 999px; padding: 1px 7px; color: var(--ink-dim); background: var(--chip-bg);
+}
+.chip.quiet { color: var(--band-quiet); border-color: var(--band-quiet); }
+.chip.watch { color: var(--band-watch); border-color: var(--band-watch); }
+.chip.dense { color: var(--band-dense); border-color: var(--band-dense); }
+.chip.saturated { color: var(--band-saturated); border-color: var(--band-saturated); }
+.chip.mode-lexical-only { background: repeating-linear-gradient(45deg, var(--chip-bg) 0 4px, var(--line-soft) 4px 8px); }
+#scrim { position: fixed; inset: 0; background: rgba(8, 14, 20, .45); border: 0; padding: 0; }
+#scrim[hidden] { display: none; }
+#panel {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%);
+  background: var(--panel-bg); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+  overflow-y: auto; padding: 16px 16px 32px; z-index: 5;
+}
+#panel[hidden] { display: none; }
+#panel h2 { font-size: 18px; margin: 4px 40px 6px 0; line-height: 1.3; overflow-wrap: anywhere; }
+#panel h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-dim); margin: 18px 0 6px; }
+#panel .close {
+  position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--chip-bg); color: var(--ink); font-size: 16px; cursor: pointer;
+}
+.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score .big { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.meter { height: 6px; background: var(--line-soft); border-radius: 999px; overflow: hidden; margin: 8px 0 2px; }
+.meter > span { display: block; height: 100%; background: var(--accent); }
+dl.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; margin: 0; font-size: 12.5px; }
+dl.kv dt { color: var(--ink-dim); overflow-wrap: anywhere; }
+dl.kv dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
+ul.plain { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 13px; }
+ul.plain li { overflow-wrap: anywhere; }
+.ev { border-left: 3px solid var(--line); padding-left: 9px; }
+.ev b { font-variant-numeric: tabular-nums; }
+.ev .note { display: block; color: var(--ink-dim); font-size: 12px; }
+ul.falsifiers li { border-left: 3px solid var(--band-quiet); padding-left: 9px; }
+.ans { border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; }
+.ans .hd { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ans .qid { font-weight: 600; font-size: 12.5px; }
+.prob { display: grid; grid-template-columns: minmax(0, 1fr) 42px; gap: 6px; align-items: center; font-size: 11.5px; color: var(--ink-dim); margin-top: 3px; }
+.prob .bar { height: 5px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+.prob .bar > span { display: block; height: 100%; background: var(--accent); }
+.prob .val { text-align: right; font-variant-numeric: tabular-nums; }
+.quote { margin: 4px 0 0; padding: 4px 0 4px 9px; border-left: 2px solid var(--line); color: var(--ink-dim); font-size: 12px; font-style: italic; }
+.reading { font-size: 12.5px; color: var(--ink-dim); margin: 6px 0 0; }
+details.worksheet { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; }
+details.worksheet > summary { cursor: pointer; font-size: 12.5px; font-weight: 600; }
+.wrow { border-top: 1px solid var(--line-soft); padding: 6px 0 0; margin-top: 6px; font-size: 12px; }
+.wrow .hd { display: flex; align-items: center; gap: 7px; }
+.wrow .cat { font-weight: 600; flex: 1 1 auto; overflow-wrap: anywhere; }
+.pips { display: inline-flex; gap: 2px; flex: 0 0 auto; }
+.pips i { width: 7px; height: 7px; border-radius: 2px; background: var(--line); display: block; }
+.pips i.on { background: var(--accent); }
+.wrow .receipt { color: var(--ink-dim); display: block; margin-top: 2px; overflow-wrap: anywhere; }
+.brief { font-size: 13px; white-space: pre-wrap; color: var(--ink); background: var(--chip-bg); border-radius: 9px; padding: 10px; overflow-wrap: anywhere; }
+.sources { font-size: 12.5px; }
+.sources code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-dim); }
+footer {
+  max-width: 1180px; margin: 22px auto 0; padding-top: 12px;
+  border-top: 1px solid var(--line); color: var(--ink-dim); font-size: 12.5px;
+}
+footer .disclaimer { color: var(--ink); font-weight: 600; }
+.empty { color: var(--ink-dim); font-size: 13px; padding: 14px 2px; }
+@media (max-width: 900px) {
+  ul.narratives { max-height: none; }
+  #panel { width: 100%; border-left: 0; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>Psyop Radar</h1>
+    <span class="tagline">narrative clusters by engineered-reality signal density</span>
+  </div>
+  <ul class="legend" aria-label="legend">
+    <li><span class="swatch saturated"></span>saturated 76&ndash;100</li>
+    <li><span class="swatch dense"></span>dense 51&ndash;75</li>
+    <li><span class="swatch watch"></span>watch 26&ndash;50</li>
+    <li><span class="swatch quiet"></span>quiet 0&ndash;25</li>
+    <li><span class="swatch lexonly"></span>lexical-only (no semantic answer accepted)</li>
+    <li>size = items in cluster &middot; glow = burst</li>
+  </ul>
+</header>
+<div class="banner" id="bankbanner" hidden>question bank: provisional</div>
+<main>
+  <section class="card" aria-label="radar">
+    <h2>Radar &mdash; center is ERS 100</h2>
+    <svg id="radar" viewBox="0 0 640 640" role="img" aria-label="Radar of narrative clusters by engineered reality score"></svg>
+    <p class="empty" id="radar-empty" hidden>No results yet. Run a scan, then reload.</p>
+  </section>
+  <aside class="card" aria-label="narratives by score">
+    <h2>Narratives by ERS</h2>
+    <ul class="narratives" id="list"></ul>
+  </aside>
+</main>
+<button id="scrim" type="button" aria-label="close detail panel" hidden></button>
+<div id="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" tabindex="-1" hidden></div>
+<footer>
+  <p class="disclaimer">Signals to investigate, not an attribution of intent or actor.</p>
+  <p id="generated">Generated &mdash;</p>
+</footer>
+<script id="poradar-main">
+"use strict";
+(function () {
+  var DISCLAIMER = "Signals to investigate, not an attribution of intent or actor.";
+  var BANDS = ["quiet", "watch", "dense", "saturated"];
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  var state = { groups: [], selected: null, bank: "provisional", generated: null };
+
+  /* ---------- small helpers ---------- */
+  function num(v, dflt) { var n = Number(v); return isFinite(n) ? n : (dflt || 0); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function pct(v) { return Math.round(clamp(num(v), 0, 1) * 100) + "%"; }
+  function fixed(v, d) { return num(v).toFixed(d === undefined ? 2 : d); }
+  function bandOf(r) {
+    var b = String((r && r.band) || "").replace(/^opinion:\s*/, "");
+    return BANDS.indexOf(b) >= 0 ? b : "quiet";
+  }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) { n.className = cls; }
+    if (text !== undefined && text !== null) { n.textContent = String(text); }
+    return n;
+  }
+  function svg(tag, attrs) {
+    var n = document.createElementNS(SVG_NS, tag);
+    for (var k in attrs) { if (Object.prototype.hasOwnProperty.call(attrs, k)) { n.setAttribute(k, attrs[k]); } }
+    return n;
+  }
+  function truncate(value, max) {
+    var s = String(value === undefined || value === null ? "" : value).replace(/\s+/g, " ").trim();
+    return s.length > max ? s.slice(0, max - 1).replace(/[\s,;:.-]+$/, "") + "…" : s;
+  }
+
+  /* ---------- BLIP LABEL (narrative-first; an outlet is never a label) ----------
+     Only the title and the top falsifier may appear next to a blip. Source
+     domains live in the detail panel's source list and nowhere else. */
+  function blipLabel(group) {
+    var top = (group && group.top) || {};
+    var title = truncate(top.title || (group && group.id) || "untitled narrative", 40);
+    var falsifiers = Array.isArray(top.falsifiers) ? top.falsifiers : [];
+    var falsifier = falsifiers.length ? truncate(falsifiers[0], 44) : "no falsifier recorded";
+    return { title: title, falsifier: "↺ " + falsifier };
+  }
+  /* ---------- END BLIP LABEL ---------- */
+
+  /* ---------- shaping the data ---------- */
+  function groupNarratives(results) {
+    var by = {}, order = [], i, r, key, g;
+    for (i = 0; i < results.length; i++) {
+      r = results[i] || {};
+      key = String(r.narrative_id || r.item_id || ("n" + i));
+      if (!by[key]) { by[key] = { id: key, results: [], top: r }; order.push(key); }
+      g = by[key];
+      g.results.push(r);
+      if (num(r.ers) > num(g.top.ers)) { g.top = r; }
+    }
+    return order.map(function (k) {
+      var grp = by[k];
+      grp.ers = num(grp.top.ers);
+      grp.band = bandOf(grp.top);
+      grp.mode = String(grp.top.mode || "lexical-only");
+      grp.cluster = grp.top.cluster || {};
+      return grp;
+    }).sort(function (a, b) { return b.ers - a.ers; });
+  }
+
+  function angleFor(id) {
+    var h = 2166136261, i;
+    var s = String(id);
+    for (i = 0; i < s.length; i++) {
+      h = h ^ s.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }
+    return (h % 3600) / 3600 * Math.PI * 2;
+  }
+  function sourcesOf(group) {
+    var out = [], seen = {};
+    (group.results || []).forEach(function (r) {
+      var list = Array.isArray(r.sources) ? r.sources : (r.source_domain ? [r.source_domain] : []);
+      list.forEach(function (s) {
+        var entry = typeof s === "string" ? { domain: s } : (s || {});
+        var domain = String(entry.domain || entry.source_domain || "unknown");
+        var key = domain + "|" + (entry.title || r.title || "");
+        if (seen[key]) { return; }
+        seen[key] = true;
+        out.push({ domain: domain, title: entry.title || r.title || "", url: entry.url || null });
+      });
+    });
+    return out;
+  }
+
+  /* ---------- the radar ---------- */
+  /* Two layouts, one algorithm: wide puts labels beside the blip and pointing
+     outward; narrow stacks them underneath. Both resolve overlap vertically. */
+  function layout() {
+    var w = window.innerWidth || 1024;
+    if (w < 760) {
+      return { W: 440, H: 640, CX: 220, CY: 218, RMAX: 166, fTitle: 12, fFals: 11, side: false };
+    }
+    return { W: 900, H: 640, CX: 450, CY: 300, RMAX: 244, fTitle: 12, fFals: 11, side: true };
+  }
+
+  function radiusFor(ers, L) { return L.RMAX * (1 - clamp(num(ers), 0, 100) / 100); }
+  function sizeFor(count) { return 5 + Math.min(13, Math.sqrt(Math.max(1, num(count, 1))) * 3.1); }
+
+  function overlaps(a, b) {
+    return !(a.x1 < b.x0 - 5 || a.x0 > b.x1 + 5 || a.y1 < b.y0 - 3 || a.y0 > b.y1 + 3);
+  }
+  function nudge(box, placed) {
+    var tries = [0, 21, -21, 42, -42, 63, -63, 84, -84, 105, -105, 126, -126];
+    for (var i = 0; i < tries.length; i++) {
+      var moved = { x0: box.x0, x1: box.x1, y0: box.y0 + tries[i], y1: box.y1 + tries[i] };
+      var clear = true;
+      for (var j = 0; j < placed.length; j++) {
+        if (overlaps(moved, placed[j])) { clear = false; break; }
+      }
+      if (clear) { return tries[i]; }
+    }
+    return tries[tries.length - 1];
+  }
+  function textWidth(s, size) { return String(s).length * size * 0.54; }
+
+  function drawGrid(root, L) {
+    var defs = svg("defs");
+    var hatch = svg("pattern", {
+      id: "hatch", width: 6, height: 6,
+      patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)"
+    });
+    hatch.appendChild(svg("rect", { width: 6, height: 6, fill: "var(--panel-bg)" }));
+    hatch.appendChild(svg("rect", { width: 2.4, height: 6, fill: "var(--ink-faint)" }));
+    defs.appendChild(hatch);
+    var grad = svg("linearGradient", { id: "sweepgrad", x1: "0", y1: "0", x2: "1", y2: "0" });
+    grad.appendChild(svg("stop", { offset: "0", "stop-color": "var(--sweep)", "stop-opacity": "0.30" }));
+    grad.appendChild(svg("stop", { offset: "1", "stop-color": "var(--sweep)", "stop-opacity": "0" }));
+    defs.appendChild(grad);
+    root.appendChild(defs);
+
+    var i, a;
+    for (i = 0; i < 12; i++) {
+      a = i / 12 * Math.PI * 2;
+      root.appendChild(svg("line", {
+        "class": "spoke", x1: L.CX, y1: L.CY,
+        x2: L.CX + Math.cos(a) * L.RMAX, y2: L.CY + Math.sin(a) * L.RMAX
+      }));
+    }
+    [0, 25, 50, 75].forEach(function (ers, idx) {
+      root.appendChild(svg("circle", {
+        "class": idx % 2 ? "ring alt" : "ring", cx: L.CX, cy: L.CY, r: radiusFor(ers, L)
+      }));
+    });
+    root.appendChild(svg("circle", { "class": "ring", cx: L.CX, cy: L.CY, r: 3 }));
+
+    var sweep = svg("g", { "class": "sweep" });
+    sweep.style.transformOrigin = L.CX + "px " + L.CY + "px";
+    sweep.appendChild(svg("path", {
+      d: "M " + L.CX + " " + L.CY + " L " + (L.CX + L.RMAX) + " " + L.CY +
+         " A " + L.RMAX + " " + L.RMAX + " 0 0 0 " +
+         (L.CX + L.RMAX * Math.cos(-0.65)) + " " + (L.CY + L.RMAX * Math.sin(-0.65)) + " Z",
+      fill: "url(#sweepgrad)"
+    }));
+    sweep.appendChild(svg("line", {
+      x1: L.CX, y1: L.CY, x2: L.CX + L.RMAX, y2: L.CY,
+      stroke: "var(--sweep)", "stroke-opacity": "0.4", "stroke-width": "1"
+    }));
+    root.appendChild(sweep);
+
+    [["quiet", 12.5], ["watch", 37.5], ["dense", 62.5], ["saturated", 87.5]].forEach(function (pair) {
+      var t = svg("text", {
+        "class": "ringlabel", x: L.CX, y: L.CY - radiusFor(pair[1], L) + 4, "text-anchor": "middle"
+      });
+      t.textContent = pair[0];
+      root.appendChild(t);
+    });
+    var c100 = svg("text", { "class": "centerlabel", x: L.CX, y: L.CY + 15, "text-anchor": "middle" });
+    c100.textContent = "ERS 100";
+    root.appendChild(c100);
+    var c0 = svg("text", {
+      "class": "centerlabel", x: L.CX, y: L.CY + L.RMAX + 15, "text-anchor": "middle"
+    });
+    c0.textContent = "ERS 0";
+    root.appendChild(c0);
+  }
+
+  function drawRadar(groups) {
+    var root = document.getElementById("radar");
+    var L = layout();
+    while (root.firstChild) { root.removeChild(root.firstChild); }
+    root.setAttribute("viewBox", "0 0 " + L.W + " " + L.H);
+    document.getElementById("radar-empty").hidden = groups.length > 0;
+    drawGrid(root, L);
+
+    var placed = [];
+    groups.forEach(function (group) {
+      var ang = angleFor(group.id);
+      var rad = radiusFor(group.ers, L);
+      var x = L.CX + Math.cos(ang) * rad;
+      var y = L.CY + Math.sin(ang) * rad;
+      var size = sizeFor(group.cluster.item_count);
+      var burst = clamp(num(group.cluster.burst), 0, 1);
+      var lexOnly = group.mode === "lexical-only";
+      var color = "var(--band-" + group.band + ")";
+      var label = blipLabel(group);
+
+      var g = svg("g", {
+        "class": "blip " + group.band + (lexOnly ? " lexonly" : ""),
+        tabindex: "0", role: "button",
+        "aria-label": label.title + ", band " + group.band + ", ERS " + Math.round(group.ers)
+      });
+      g.dataset.narrative = group.id;
+      g.appendChild(svg("circle", {
+        "class": "halo", cx: x, cy: y, r: size * (1.8 + burst * 1.4),
+        fill: color, "fill-opacity": (0.07 + burst * 0.26).toFixed(3)
+      }));
+      g.appendChild(svg("circle", {
+        "class": "dot", cx: x, cy: y, r: size,
+        fill: lexOnly ? "url(#hatch)" : color,
+        "fill-opacity": lexOnly ? "0.9" : (0.55 + burst * 0.45).toFixed(3)
+      }));
+
+      var w = Math.max(textWidth(label.title, L.fTitle), textWidth(label.falsifier, L.fFals));
+      var anchor, lx, ly, box;
+      if (L.side) {
+        var right = x >= L.CX;
+        if (right && x + size + 10 + w > L.W - 6) { right = false; }
+        if (!right && x - size - 10 - w < 6) { right = true; }
+        anchor = right ? "start" : "end";
+        lx = right ? x + size + 9 : x - size - 9;
+        box = right ? { x0: lx, x1: lx + w } : { x0: lx - w, x1: lx };
+        ly = y - 2;
+      } else {
+        anchor = "middle";
+        lx = clamp(x, w / 2 + 5, L.W - w / 2 - 5);
+        box = { x0: lx - w / 2, x1: lx + w / 2 };
+        ly = y + size + 14;
+      }
+      ly = clamp(ly, L.fTitle + 4, L.H - L.fFals - 8);
+      box.y0 = ly - L.fTitle;
+      box.y1 = ly + L.fFals + 5;
+      var dy = nudge(box, placed);
+      ly += dy;
+      box.y0 += dy;
+      box.y1 += dy;
+      placed.push(box);
+
+      if (Math.abs(dy) > 4 || !L.side) {
+        g.appendChild(svg("line", {
+          "class": "leader", x1: x, y1: y, x2: lx, y2: ly - L.fTitle * 0.35
+        }));
+      }
+      var text = svg("text", {
+        "class": "blabel", x: lx, y: ly, "text-anchor": anchor, "font-size": L.fTitle
+      });
+      var l1 = svg("tspan", { x: lx });
+      l1.textContent = label.title;
+      var l2 = svg("tspan", { "class": "fals", x: lx, dy: L.fFals + 2, "font-size": L.fFals });
+      l2.textContent = label.falsifier;
+      text.appendChild(l1);
+      text.appendChild(l2);
+      g.appendChild(text);
+
+      g.addEventListener("click", function () { select(group.id); });
+      g.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(group.id); }
+      });
+      root.appendChild(g);
+    });
+  }
+
+  /* ---------- the list view ---------- */
+  function drawList(groups) {
+    var list = document.getElementById("list");
+    while (list.firstChild) { list.removeChild(list.firstChild); }
+    if (!groups.length) {
+      var li = el("li");
+      li.appendChild(el("p", "empty", "No narratives yet."));
+      list.appendChild(li);
+      return;
+    }
+    groups.forEach(function (group) {
+      var label = blipLabel(group);
+      var li = el("li");
+      var btn = el("button", "nrow " + group.band);
+      btn.type = "button";
+      btn.dataset.narrative = group.id;
+      var top = el("div", "top");
+      top.appendChild(el("span", "ers", Math.round(group.ers)));
+      top.appendChild(el("span", "chip " + group.band, group.band));
+      top.appendChild(el("span", "chip mode-" + group.mode, group.mode));
+      btn.appendChild(top);
+      btn.appendChild(el("div", "ttl", label.title));
+      btn.appendChild(el("div", "fals", label.falsifier));
+      btn.appendChild(el("div", "fals", (group.cluster.item_count || 1) + " item(s) · burst " + fixed(group.cluster.burst, 2)));
+      btn.addEventListener("click", function () { select(group.id); });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
+
+  /* ---------- the detail panel (the only place domains appear) ---------- */
+  function section(parent, heading) {
+    parent.appendChild(el("h3", null, heading));
+    return parent;
+  }
+  function kvList(pairs) {
+    var dl = el("dl", "kv");
+    pairs.forEach(function (p) {
+      dl.appendChild(el("dt", null, p[0]));
+      dl.appendChild(el("dd", null, p[1]));
+    });
+    return dl;
+  }
+
+  function drawWorksheet(ws) {
+    var box = el("details", "worksheet");
+    var sum = el("summary", null,
+      num(ws.total) + " / 100 \u00b7 " + (ws.rows || []).length + " categories \u00b7 " +
+      num(ws.auto_rows) + " scored from the text, " + num(ws.human_rows) + " need a human");
+    box.appendChild(sum);
+    if (ws.reading) { box.appendChild(el("p", "reading", ws.reading)); }
+    (ws.rows || []).forEach(function (row) {
+      var r = el("div", "wrow");
+      var hd = el("div", "hd");
+      hd.appendChild(el("span", "cat", num(row.n) + ". " + (row.category || "")));
+      var pips = el("span", "pips");
+      pips.setAttribute("aria-label", num(row.score) + " of 5");
+      for (var i = 1; i <= 5; i++) { pips.appendChild(el("i", i <= num(row.score) ? "on" : null)); }
+      hd.appendChild(pips);
+      hd.appendChild(el("span", "chip", row.basis || "?"));
+      r.appendChild(hd);
+      if (row.receipt) { r.appendChild(el("span", "receipt", row.receipt)); }
+      if (row.lower_it) { r.appendChild(el("span", "receipt", "\u21ba " + row.lower_it)); }
+      box.appendChild(r);
+    });
+    return box;
+  }
+
+  function drawPanel(group) {
+    var panel = document.getElementById("panel");
+    while (panel.firstChild) { panel.removeChild(panel.firstChild); }
+    var top = group.top || {};
+
+    var close = el("button", "close", "×");
+    close.type = "button";
+    close.setAttribute("aria-label", "close");
+    close.addEventListener("click", function () { select(null); });
+    panel.appendChild(close);
+
+    var h2 = el("h2", null, top.title || group.id);
+    h2.id = "panel-title";
+    panel.appendChild(h2);
+
+    var score = el("div", "score");
+    score.appendChild(el("span", "big", Math.round(num(top.ers))));
+    score.appendChild(el("span", "chip " + bandOf(top), top.band || bandOf(top)));
+    score.appendChild(el("span", "chip mode-" + (top.mode || ""), top.mode || "unknown"));
+    if (top.needs_review) { score.appendChild(el("span", "chip", "needs review")); }
+    panel.appendChild(score);
+    var meter = el("div", "meter");
+    var fill = el("span");
+    fill.style.width = clamp(num(top.ers), 0, 100) + "%";
+    fill.style.background = "var(--band-" + bandOf(top) + ")";
+    meter.appendChild(fill);
+    panel.appendChild(meter);
+    panel.appendChild(el("p", "fals", "narrative " + group.id + " · " + group.results.length + " scored item(s)"));
+
+    section(panel, "Evidence");
+    var ev = el("ul", "plain");
+    (top.evidence || []).forEach(function (e) {
+      var li = el("li", "ev");
+      var head = el("div");
+      head.appendChild(el("span", null, e.signal + " "));
+      head.appendChild(el("b", null, typeof e.value === "number" ? fixed(e.value, 2) : String(e.value)));
+      li.appendChild(head);
+      li.appendChild(el("span", "note", e.note || ""));
+      if (e.quote) { li.appendChild(el("blockquote", "quote", "\u201c" + e.quote + "\u201d")); }
+      ev.appendChild(li);
+    });
+    if (!ev.childNodes.length) { ev.appendChild(el("li", "note", "no evidence recorded")); }
+    panel.appendChild(ev);
+
+    section(panel, "What would falsify this");
+    var fl = el("ul", "plain falsifiers");
+    (top.falsifiers || []).forEach(function (f) { fl.appendChild(el("li", null, f)); });
+    if (!fl.childNodes.length) { fl.appendChild(el("li", null, "none recorded")); }
+    panel.appendChild(fl);
+
+    var sem = top.semantic;
+    if (sem && sem.answers && Object.keys(sem.answers).length) {
+      section(panel, "Semantic answers · " + (sem.provider || "provider"));
+      var answers = el("ul", "plain");
+      Object.keys(sem.answers).forEach(function (qid) {
+        var a = sem.answers[qid] || {};
+        var li = el("li", "ans");
+        var hd = el("div", "hd");
+        hd.appendChild(el("span", "qid", qid));
+        hd.appendChild(el("span", "chip", a.gate || "?"));
+        li.appendChild(hd);
+        var value = a.label !== undefined && a.label !== null && a.label !== "" ? a.label : a.value;
+        li.appendChild(el("div", "note", (a.type || "") + " · " + (typeof value === "number" ? fixed(value, 2) : String(value)) +
+          " · confidence " + pct(a.confidence)));
+        var probs = a.probabilities || {};
+        Object.keys(probs).forEach(function (k) {
+          var row = el("div", "prob");
+          var barwrap = el("div");
+          barwrap.appendChild(el("span", null, k));
+          var bar = el("div", "bar");
+          var b = el("span");
+          b.style.width = pct(probs[k]);
+          bar.appendChild(b);
+          barwrap.appendChild(bar);
+          row.appendChild(barwrap);
+          row.appendChild(el("div", "val", pct(probs[k])));
+          li.appendChild(row);
+        });
+        answers.appendChild(li);
+      });
+      panel.appendChild(answers);
+      panel.appendChild(el("p", "note", "egress " + (sem.egress || "none") + " · " + num(sem.latency_ms) + " ms" + (sem.cached ? " · cached" : "")));
+    } else {
+      section(panel, "Semantic answers");
+      panel.appendChild(el("p", "note", "none accepted — this result is lexical-only, so the band is capped at watch."));
+    }
+
+    section(panel, "Lexical signals");
+    var lex = top.lexical || {};
+    panel.appendChild(kvList([
+      ["emotional_load", fixed(lex.emotional_load)],
+      ["absolutism", fixed(lex.absolutism)],
+      ["urgency", fixed(lex.urgency)],
+      ["shout", fixed(lex.shout)],
+      ["attribution_absence", fixed(lex.attribution_absence)],
+      ["authority_words", fixed(lex.authority_words)],
+      ["attributed syndication", lex.attributed_syndication ? "yes" : "no"],
+      ["word count", String(num(lex.word_count))]
+    ]));
+
+    section(panel, "Cluster signals");
+    var cl = top.cluster || {};
+    panel.appendChild(kvList([
+      ["uniformity", fixed(cl.uniformity)],
+      ["source_diversity", fixed(cl.source_diversity)],
+      ["burst", fixed(cl.burst)],
+      ["items", String(num(cl.item_count, 1))],
+      ["unattributed items", String(num(cl.unattributed_count))]
+    ]));
+
+    if (top.worksheet && Array.isArray(top.worksheet.rows) && top.worksheet.rows.length) {
+      section(panel, "Worksheet");
+      panel.appendChild(drawWorksheet(top.worksheet));
+    }
+
+    if (top.brief) {
+      section(panel, "Forensic brief");
+      panel.appendChild(el("div", "brief", top.brief));
+    }
+
+    section(panel, "Sources in this cluster");
+    var srcs = sourcesOf(group);
+    var sl = el("ul", "plain sources");
+    srcs.forEach(function (s) {
+      var li = el("li");
+      li.appendChild(el("div", null, s.title || "(untitled)"));
+      var code = el("code", null, s.domain);
+      li.appendChild(code);
+      sl.appendChild(li);
+    });
+    if (!sl.childNodes.length) { sl.appendChild(el("li", null, "no source list recorded")); }
+    panel.appendChild(sl);
+
+    panel.appendChild(el("p", "note", top.disclaimer || DISCLAIMER));
+  }
+
+  /* ---------- selection ---------- */
+  function markSelection() {
+    Array.prototype.forEach.call(document.querySelectorAll(".blip, .nrow"), function (n) {
+      n.classList.toggle("sel", n.dataset.narrative === state.selected);
+    });
+  }
+
+  function select(narrativeId) {
+    state.selected = narrativeId;
+    var panel = document.getElementById("panel");
+    var scrim = document.getElementById("scrim");
+    var group = null, i;
+    for (i = 0; i < state.groups.length; i++) {
+      if (state.groups[i].id === narrativeId) { group = state.groups[i]; }
+    }
+    markSelection();
+    if (!group) {
+      panel.hidden = true;
+      scrim.hidden = true;
+      return;
+    }
+    drawPanel(group);
+    panel.hidden = false;
+    scrim.hidden = false;
+    panel.focus();
+  }
+
+  /* ---------- render + load ---------- */
+  function render(payload) {
+    var results = Array.isArray(payload.results) ? payload.results : [];
+    state.groups = groupNarratives(results);
+    state.bank = payload.bank || bankFrom(results);
+    state.generated = payload.generated || new Date().toISOString();
+    document.getElementById("bankbanner").hidden = state.bank !== "provisional";
+    drawRadar(state.groups);
+    drawList(state.groups);
+    var when = new Date(state.generated);
+    document.getElementById("generated").textContent = "Generated " +
+      (isNaN(when.getTime()) ? String(state.generated) : when.toLocaleString());
+  }
+
+  function bankFrom(results) {
+    var reconciled = results.length > 0;
+    results.forEach(function (r) { if ((r.bank || "provisional") !== "reconciled") { reconciled = false; } });
+    return reconciled ? "reconciled" : "provisional";
+  }
+
+  function boot() {
+    document.getElementById("scrim").addEventListener("click", function () { select(null); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { select(null); } });
+    var resizeTimer = null;
+    var wasNarrow = layout().side;
+    window.addEventListener("resize", function () {
+      if (layout().side === wasNarrow && state.groups.length === 0) { return; }
+      wasNarrow = layout().side;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        drawRadar(state.groups);
+        markSelection();
+      }, 150);
+    });
+
+    if (Array.isArray(window.PORADAR_EMBEDDED)) {
+      render({
+        results: window.PORADAR_EMBEDDED,
+        disclaimer: DISCLAIMER,
+        bank: window.PORADAR_BANK || bankFrom(window.PORADAR_EMBEDDED),
+        generated: window.PORADAR_GENERATED || new Date().toISOString()
+      });
+      return;
+    }
+    fetch("/api/results?limit=200", { headers: { accept: "application/json" } })
+      .then(function (r) { return r.json(); })
+      .then(render)
+      .catch(function () {
+        document.getElementById("radar-empty").hidden = false;
+        document.getElementById("radar-empty").textContent = "Could not reach /api/results.";
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

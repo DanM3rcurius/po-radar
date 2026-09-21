@@ -156,6 +156,20 @@ Order: `PORADAR_PROVIDER` env if set; else Jev if `TYPESAFE_API_KEY`/`OPENROUTER
 
 Account/network metadata signals (need platform APIs); image/video forensics; multilingual lexicons; fine-tuned local classifiers (SetFit/NLI) — the provider interface leaves room for them.
 
+## 12b. Transcript reconciliation (2026-09-21, after the Multiplex transcript arrived)
+
+The transcript (delivered in chat and as `psyopradar-transcript-multiplex` on trunk, both truncated at
+20,000 characters) describes the NCI PsyOps Identification Tool v8.3 by Chase Hughes: 20 categories,
+each 1 (absent) to 5 (overwhelming), 0-100, with bands 0-25 organic-likely, 26-50 ordinary
+sensationalism, 51-75 strong engineered elements, 76-100 overwhelming coordination indicator; receipts
+for every score; multiple conflicting sources required; the user must try to prove their own score
+wrong. It also names timing, historical parallels, white/gray/black propaganda, amygdala/System 1
+targeting, the illusory truth effect, prospect-theory loss framing, social identity, and Cialdini's
+levers. All of that is now in `worksheet.py`, `receipts.py`, five added questions, and the band
+cutpoints; `docs/RECONCILE.md` tracks what is still missing after the cut (the canonical list of 20
+categories and the Cialdini mapping). ERS remains the fused, gated score; the worksheet total is the
+NCI-shaped view of the same evidence, with human-only rows scored 1 and labeled.
+
 ## 13. Premortem revisions (2026-09-21, supersede earlier sections where they conflict)
 
 Full transcript: `docs/premortem/2026-09-21-premortem-transcript.md`.

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Premortem Report</title>
+<style>
+  :root{
+    --bg:#0a0e1a;
+    --panel:#111827;
+    --panel-2:#0f1522;
+    --border:#232b3d;
+    --text:#e6e9f2;
+    --muted:#93a0b8;
+    --muted-2:#6b7690;
+    --chip-likely:#f0b429;
+    --chip-dangerous:#ff5c5c;
+    --chip-medium:#6fb1ff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+    padding:16px;
+    max-width:1100px;
+    margin:0 auto;
+    overflow-x:hidden;
+  }
+  a{color:#7db8ff;}
+  h1{font-size:1.5rem;margin:0 0 4px;letter-spacing:-0.01em;}
+  h2{font-size:1.05rem;margin:0 0 10px;color:var(--text);}
+  h3{font-size:1rem;margin:0 0 6px;}
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-size:.72rem;
+    color:var(--muted-2);
+    margin:0 0 6px;
+  }
+  header.page-head{
+    margin-bottom:18px;
+    padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+  .subtitle{color:var(--muted);font-size:.92rem;margin-top:4px;}
+  .run-line{
+    display:inline-block;
+    margin-top:10px;
+    font-size:.78rem;
+    color:#9be7c4;
+    background:rgba(90,200,150,0.08);
+    border:1px solid rgba(90,200,150,0.25);
+    padding:3px 10px;
+    border-radius:999px;
+  }
+
+  .synthesis{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:26px;
+  }
+  .synthesis-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  @media (min-width:720px){
+    .synthesis-grid{grid-template-columns:1fr 1fr;}
+    .synthesis-grid .span-2{grid-column:1 / -1;}
+  }
+  .syn-block{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .syn-block.likely{border-left:4px solid var(--chip-likely);}
+  .syn-block.dangerous{border-left:4px solid var(--chip-dangerous);}
+  .syn-block.hidden{border-left:4px solid #b98ef0;}
+  .syn-block p{margin:0;color:var(--text);font-size:.92rem;}
+  .syn-block ol,.syn-block ul{margin:0;padding-left:1.15rem;font-size:.88rem;color:var(--text);}
+  .syn-block li{margin-bottom:6px;}
+  .syn-block li:last-child{margin-bottom:0;}
+  .tag{
+    display:inline-block;
+    font-size:.68rem;
+    font-weight:700;
+    color:#0a0e1a;
+    background:var(--chip-likely);
+    padding:2px 8px;
+    border-radius:999px;
+    margin-right:6px;
+  }
+  .tag.dangerous{background:var(--chip-dangerous);color:#1a0505;}
+
+  .cards-head{margin:8px 0 12px;}
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+    margin-bottom:26px;
+  }
+  @media (min-width:640px){
+    .grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (min-width:980px){
+    .grid{grid-template-columns:1fr 1fr 1fr;}
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    border-left-width:4px;
+    border-left-style:solid;
+  }
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .card-num{
+    color:var(--muted-2);
+    font-size:.72rem;
+    font-weight:700;
+    letter-spacing:.05em;
+  }
+  .card h3{font-size:.98rem;line-height:1.3;margin:2px 0 8px;}
+  .chip{
+    display:inline-block;
+    font-size:.65rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:999px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .chip.likely-high{background:rgba(240,180,41,0.15);color:#f0b429;border:1px solid rgba(240,180,41,0.4);}
+  .chip.likely-medium{background:rgba(240,180,41,0.10);color:#e0b158;border:1px solid rgba(224,177,88,0.3);}
+  .chip.dangerous-high{background:rgba(255,92,92,0.15);color:#ff8a8a;border:1px solid rgba(255,92,92,0.4);}
+  .chip.medium{background:rgba(111,177,255,0.12);color:#8fc4ff;border:1px solid rgba(111,177,255,0.35);}
+
+  .field{margin-top:8px;}
+  .field-label{
+    font-size:.68rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--muted-2);
+    margin-bottom:2px;
+  }
+  .field-body{font-size:.85rem;color:var(--muted);}
+  .field-body.fix{color:#bdeed0;}
+
+  footer{
+    border-top:1px solid var(--border);
+    padding-top:14px;
+    margin-top:10px;
+    font-size:.78rem;
+    color:var(--muted-2);
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 14px;
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <p class="eyebrow">Premortem Report</p>
+  <h1>Psyop Radar &mdash; Design Spec Premortem</h1>
+  <p class="subtitle">Frame: it is March 2027. Psyop Radar has failed and been abandoned. Working backward from failure against the design spec.</p>
+  <span class="run-line">9 investigators ran in parallel</span>
+</header>
+
+<section class="synthesis">
+  <h2>Synthesis</h2>
+  <div class="synthesis-grid">
+    <div class="syn-block likely">
+      <span class="tag">Most likely failure</span>
+      <p style="margin-top:8px;">Reasons 1 + 3 together. The deterministic cluster terms reward exactly what routine wire journalism produces, and the confidence gate's redistribution rule turns every semantic rejection into more lexical weight. The tool's top blips would be AP stories within the first day of a real feed run.</p>
+    </div>
+    <div class="syn-block dangerous">
+      <span class="tag dangerous">Most dangerous failure</span>
+      <p style="margin-top:8px;">Reason 9, then 8. A screenshot of a score beside an outlet name is an attribution regardless of the disclaimer, and a &ldquo;local-first&rdquo; tool that quietly sends pasted text to a cloud burns the one user it has. Both are cheap to prevent now and impossible to walk back later.</p>
+    </div>
+    <div class="syn-block hidden span-2">
+      <span class="tag" style="background:#b98ef0;">Hidden assumption</span>
+      <p style="margin-top:8px;">That the semantic layer will usually be present. The design treated Jev/Ollama as the normal path and heuristics as an edge case, so every fusion rule leaned on semantic answers being there. In practice the zero-key path is the common path, so the deterministic layer has to be honest and useful on its own, and the score must say which layers actually answered.</p>
+    </div>
+    <div class="syn-block span-2">
+      <h3 style="margin-bottom:8px;">Revised plan</h3>
+      <ol>
+        <li>Hero loop first: <code>poradar scan</code> with zero keys, under 2s, prints ERS band, evidence, falsifiers, and a template brief. <span style="color:var(--muted-2);">(7)</span></li>
+        <li>Provider default is local; cloud is opt-in via <code>--cloud</code>/<code>PORADAR_ALLOW_CLOUD=1</code>; egress line before any call; stdin never sent to cloud without a second flag. <span style="color:var(--muted-2);">(8)</span></li>
+        <li>Jev state is <code>{title, source_domain, published, excerpt}</code> only. <span style="color:var(--muted-2);">(2)</span></li>
+        <li>Fusion: rejected semantic weight redistributes only among accepted semantic terms; no accepted semantic answer caps the band at &ldquo;watch&rdquo; and labels the output &ldquo;lexical-only&rdquo;. <span style="color:var(--muted-2);">(1, 4)</span></li>
+        <li>Wire attribution detector; attributed syndication excluded from uniformity and diversity; boilerplate stripped before shingling; MinHash threshold pinned by golden pairs. <span style="color:var(--muted-2);">(3)</span></li>
+        <li>Ollama path: one batched call, one JSON schema, content-hash cache. <span style="color:var(--muted-2);">(4)</span></li>
+        <li>Ingestion health in doctor and report; minimum-text and boilerplate rejection; feed content preferred over scraping. <span style="color:var(--muted-2);">(5)</span></li>
+        <li><code>questions.json</code> is the loaded source of truth, with show/import commands and <code>docs/RECONCILE.md</code>. <span style="color:var(--muted-2);">(6)</span></li>
+        <li>Bands renamed to signal-density language; output fails closed without evidence and falsifiers; blips keyed by narrative; attribution disclaimer burned into every export. <span style="color:var(--muted-2);">(9)</span></li>
+      </ol>
+    </div>
+    <div class="syn-block span-2">
+      <h3 style="margin-bottom:8px;">Pre-launch checklist</h3>
+      <ol>
+        <li>Golden set includes an attributed wire report on a grave event, an opinion column, satire, and an outrage-bait post; the wire report must land in &ldquo;clear&rdquo; or &ldquo;watch&rdquo; in lexical-only mode.</li>
+        <li><code>poradar scan tests/fixtures/*.txt</code> runs with no env vars and no network in under 2s each.</li>
+        <li>A unit test asserts the Jev request body contains no <code>signals</code> key.</li>
+        <li>A unit test asserts that with all semantic answers rejected the band is at most &ldquo;watch&rdquo; and the output carries <code>mode: lexical-only</code>.</li>
+        <li>A unit test asserts every serialized result has non-empty evidence and falsifiers, and that the disclaimer string is present.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 class="cards-head">Failure reasons &mdash; deep dives</h2>
+  <div class="grid">
+
+    <article class="card" style="border-left-color:#ff5c5c;">
+      <div class="card-top">
+        <div><span class="card-num">01</span><h3>False positives on legitimate news</h3></div>
+        <span class="chip likely-high">Likely &middot; High</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">Uniformity, source-diversity and burst signals fire on normal breaking wire news. When the confidence gate rejects semantic answers, their weight redistributes onto lexical and cluster terms, so a grim, widely-syndicated AP report on an atrocity scores 80.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">Lexical intensity and cross-outlet duplication are manipulation tells, when serious organic news produces both.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">Golden false-positive rate on organic wire/war/opinion fixtures above 10%; semantic rejection rate above 40%.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">Rejected semantic weight redistributes only among accepted semantic terms; with no accepted term, cap the band at &ldquo;watch&rdquo; and set needs_review; exclude attributed wire copies from uniformity and diversity.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#f0b429;">
+      <div class="card-top">
+        <div><span class="card-num">02</span><h3>Jev leakage and calibration</h3></div>
+        <span class="chip likely-medium">Likely &middot; Medium</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">Sending signal numbers in state is a partial verdict; Jev's <code>engineered_likelihood</code> echoes the lexical block, then fusion double-counts it. Nuanced nouls cluster at 0.4&ndash;0.6 and everything becomes <code>needs_review</code>.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">Numbers as context are neutral; noul confidence near 0.5 reflects question difficulty rather than state contents.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">Correlation between lexical composite and engineered_likelihood above 0.7 on goldens; needs_review above 15&ndash;20% on a real feed run; over half of one_sided/tribal_signal values in [0.4, 0.6].</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">Send only {title, source_domain, published, excerpt}; deterministic and semantic evidence meet only in fusion. Add a calibration check: a noul stuck in [0.45, 0.55] on most fixtures is a mis-specified question to reword, not gate.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#ff9d4d;">
+      <div class="card-top">
+        <div><span class="card-num">03</span><h3>Wire syndication defeats diversity</h3></div>
+        <span class="chip likely-high">Likely &middot; High</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">AP/Reuters copy is verbatim across dozens of domains, so wire stories hit uniformity 1.0 and look like laundering; a single MinHash knob does two jobs and boilerplate creates spurious matches.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">Textual near-duplication across outlets is evidence of coordination.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">More than 20% of elevated/high verdicts carry a wire byline; Jaccard distribution bimodal at the extremes only.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">Strip boilerplate before shingling; detect wire attribution (dateline patterns, bylines, copyright footers) and tag <code>attributed_syndication</code>; exclude those from uniformity/diversity; pin the threshold with golden duplicate and unrelated pairs.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#e0b158;">
+      <div class="card-top">
+        <div><span class="card-num">04</span><h3>No real local semantic path</h3></div>
+        <span class="chip likely-medium">Likely &middot; Medium</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">With no key, every scan falls to Ollama; self-reported confidence capped at 0.8 against an accept threshold of 0.7 lands nearly everything uncertain; ten sequential calls make a scan take 30&ndash;60s; heuristic mode emits full-looking verdicts anyway.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">Self-reported confidence from a small local model is usable, and ten sequential questions are fine without measuring latency.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">Uncertain/unknown share on Ollama far above Jev; p95 scan wall-clock; confidence spike at the cap value.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">One batched Ollama call with one JSON schema; content-hash cache; honest &ldquo;lexical-only mode&rdquo; label when no semantic provider answered.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#6fb1ff;">
+      <div class="card-top">
+        <div><span class="card-num">05</span><h3>Ingestion rot</h3></div>
+        <span class="chip medium">Medium</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">Feeds die or paywall, fetches get 403 or JS shells, readability-lite extracts nav and cookie text, uniformity spikes on shared footers, the dashboard renders confident blips from junk.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">Fetch plus extraction is a solved, low-variance step that can run unattended.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">Fleet-wide short excerpts; uniformity spikes across unrelated topics; feed success trending down.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">Per-feed health (last success, consecutive failures, dead flag) in doctor and report; minimum text length and boilerplate-density rejection tagged <code>ingest_rejected</code>; prefer feed-provided content over scraping; dim low-confidence-ingestion blips.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#5fd0a8;">
+      <div class="card-top">
+        <div><span class="card-num">06</span><h3>Source fidelity gap</h3></div>
+        <span class="chip medium">Medium</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">The caveat &ldquo;re-verify against the transcript&rdquo; was a comment, not a gate; the snippet-derived question bank hardened into weights and the user found it off-target.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">A documented caveat is a safeguard.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">Bank hard-coded; no CLI path to compare or replace it.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix"><code>questions.json</code> is the single source of truth the code loads; <code>poradar questions</code> commands to show and import; <code>docs/RECONCILE.md</code> checklist; &ldquo;provisional&rdquo; banner until reconciled.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#9f7aea;">
+      <div class="card-top">
+        <div><span class="card-num">07</span><h3>Scope and abandonment</h3></div>
+        <span class="chip medium">Medium</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">Three surfaces built at once, dashboard breaks on first real data, user never gets past key setup, no wow moment in 60 seconds.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">Breadth equals value; fixture-validated parts compose safely.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">No zero-config scan in the deployment story; doctor and dryrun documented before scan.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">Hero loop is <code>poradar scan &lt;file|url|-&gt;</code> with zero keys, under 2s, deterministic ERS plus evidence plus template brief; everything else is secondary and must run against real data before it counts.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#ff8a8a;">
+      <div class="card-top">
+        <div><span class="card-num">08</span><h3>Privacy surprise</h3></div>
+        <span class="chip dangerous-high">Dangerous &middot; High</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">A key present for unrelated work silently promotes scans to cloud; stdin-pasted private text goes to Jev; MCP setup writes the key into client config.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">An env var being set equals the user choosing cloud mode.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">No <code>--cloud</code> flag; doctor is opt-in; stdin has no distinct trust tier.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">Default provider is local/heuristic; cloud requires <code>--cloud</code> or <code>PORADAR_ALLOW_CLOUD=1</code>; an egress line prints before any network call; stdin never leaves the machine without <code>--allow-stdin-egress</code>.</div></div>
+    </article>
+
+    <article class="card" style="border-left-color:#ff4d6d;">
+      <div class="card-top">
+        <div><span class="card-num">09</span><h3>Accusation machine</h3></div>
+        <span class="chip dangerous-high">Dangerous &middot; High</span>
+      </div>
+      <div class="field"><div class="field-label">Story</div><div class="field-body">A blip's score next to an outlet name is the artifact that circulates; guardrail text lives one click away &mdash; the Hamilton 68 pattern.</div></div>
+      <div class="field"><div class="field-label">Assumption</div><div class="field-body">Guardrail vocabulary present somewhere in the system is enough.</div></div>
+      <div class="field"><div class="field-label">Warning signs</div><div class="field-body">Screenshots of scores without evidence; &ldquo;how do I get my outlet's score down&rdquo; requests.</div></div>
+      <div class="field"><div class="field-label">Fix</div><div class="field-body fix">Score is inseparable from evidence and falsifiers in every surface (fail closed in JSON); blip label carries the top falsifier; blips keyed by narrative, not outlet; every export burns in &ldquo;not an attribution of intent or actor&rdquo;.</div></div>
+    </article>
+
+  </div>
+</section>
+
+<footer>
+  <span>2026-09-21</span>
+  <span>&middot;</span>
+  <span>Premortem of: Psyop Radar design spec</span>
+</footer>
+
+</body>
+</html>

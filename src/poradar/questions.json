@@ -1,11 +1,14 @@
 {
-  "version": "0.1-provisional",
-  "note": "Provisional bank distilled from indexed summaries of Roemmele's 'Psyop AI Prompt Detector' (2026-06-24), the Deep Truth Mode ethos, SemEval-2020 T11 techniques, and Nimmo's Ds. Reconcile against the actual transcript via docs/RECONCILE.md. Ids are not sent to the model; instructions carry the full meaning.",
+  "version": "0.2-provisional",
+  "note": "Provisional bank. Reconciled with the Multiplex transcript excerpt (NCI PsyOps Identification Tool v8.3 by Chase Hughes: 20 categories x 1-5, bands 0-25/26-50/51-75/76-100, receipts, conflicting sources, prove-yourself-wrong) plus its psychology chapters (amygdala/System 1, illusory truth, prospect-theory framing, social identity, Cialdini). The uploaded transcript is truncated at 20,000 characters, so the full list of 20 NCI categories is not in it; see docs/RECONCILE.md. Ids are not sent to the model; instructions carry the full meaning.",
   "questions": {
     "primary_source": {
       "type": "noul",
       "instructions": "Does the text cite a verifiable primary source, such as a named document, dataset, court filing, on-record named witness, or official record, rather than only anonymous or secondary authority?",
-      "criteria": {"true": "At least one named, checkable primary source is cited", "false": "Only anonymous sources, unnamed experts, or other outlets are cited, or no source at all"}
+      "criteria": {
+        "true": "At least one named, checkable primary source is cited",
+        "false": "Only anonymous sources, unnamed experts, or other outlets are cited, or no source at all"
+      }
     },
     "manufactured_urgency": {
       "type": "noul",
@@ -95,6 +98,58 @@
         "Shaped: consistent framing, selective emphasis",
         "Likely engineered: multiple techniques working together",
         "Textbook engineered: urgency, tribal framing, unverifiable claims, and loaded language together"
+      ]
+    },
+    "historical_parallel": {
+      "type": "choice",
+      "instructions": "Judged from rhetorical structure and emotional pacing alone, which documented manipulation template does this text most resemble, if any? Do not guess who is behind it.",
+      "criteria": {
+        "atrocity_story": "A single horrifying incident, thinly sourced, used to justify a sweeping response",
+        "moral_panic": "A threat to children, safety, or values framed as sudden and everywhere",
+        "manufactured_consensus": "Everyone agrees; dissent is fringe or dangerous",
+        "planted_leak": "Anonymous insider material presented as organic revelation",
+        "false_flag_accusation": "A group is accused of staging events to discredit an opponent",
+        "victory_or_collapse": "Imminent triumph or imminent collapse asserted without checkable detail",
+        "none": "No recognizable template"
+      }
+    },
+    "cialdini_lever": {
+      "type": "choice",
+      "instructions": "Which influence lever from Cialdini's principles is most clearly at work in the text, if any?",
+      "criteria": {
+        "authority": "Deference to titles, uniforms, or institutions in place of evidence",
+        "social_proof": "Everyone believes or does this, so you should",
+        "scarcity": "Limited time, last chance, act before it is gone",
+        "reciprocity": "You owe support because of what was given or sacrificed",
+        "commitment": "You already believe X, so you must accept Y",
+        "liking": "Trust the messenger because they are like you or admirable",
+        "unity": "We are one people; the other side is outside the tribe",
+        "none": "No lever is prominent"
+      }
+    },
+    "loss_framing": {
+      "type": "noul",
+      "instructions": "Is the central claim framed as a loss, threat, or destruction when the same facts could be stated neutrally or as a gain (for example 'will destroy 20,000 lives' versus '80,000 jobs kept')? Answer false when the loss framing is simply the plain description of what happened."
+    },
+    "source_transparency": {
+      "type": "choice",
+      "instructions": "How transparent is the origin of the central claim, judged from the text alone?",
+      "criteria": {
+        "white": "Openly attributed to a named, acknowledged source such as an official statement or a named organization",
+        "gray": "No identifiable origin: anonymous leak, rumor, unnamed insiders, 'reports say'",
+        "black": "Attributed to a source that the text's own content contradicts or that is presented in a way designed to be mistaken for the opposing side",
+        "unclear": "Cannot tell from the text"
+      }
+    },
+    "organic_explanation_strength": {
+      "type": "score",
+      "instructions": "Play devil's advocate against the reading that this text is engineered. Judged from the text alone, how strong is the best organic explanation (ordinary reporting of a real event, honest opinion, normal sensationalism for clicks)?",
+      "criteria": [
+        "No plausible organic explanation: the text only makes sense as engineered messaging",
+        "Weak: an organic reading exists but strains against the text",
+        "Plausible: an organic reading fits about as well as an engineered one",
+        "Strong: the text reads naturally as ordinary reporting or honest argument",
+        "Compelling: nothing in the text requires an engineered explanation"
       ]
     }
   }
