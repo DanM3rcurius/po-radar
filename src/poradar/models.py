@@ -136,6 +136,7 @@ class RadarResult(BaseModel):
     brief: str | None = None
     worksheet: Worksheet | None = None
     nci_reading: str = ""
+    define_first: list[str] = Field(default_factory=list)  # Deep Truth Mode: terms to define before arguing
     disclaimer: str = DISCLAIMER
     generated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

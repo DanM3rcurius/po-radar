@@ -89,5 +89,5 @@ async def test_evaluate_item_sends_evidence_only_and_caches(tmp_path):
     state = stub.requests[0].state
     assert set(state) == {"title", "source_domain", "published", "excerpt"}
     assert "signals" not in json.dumps(stub.requests[0].wire())
-    assert len(r1.answers) == 15
+    assert len(r1.answers) == 16
     assert all(a.gate in ("accept", "uncertain", "reject") for a in r1.answers.values())

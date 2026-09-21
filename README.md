@@ -45,6 +45,7 @@ See `docs/JEV_SETUP.md` for wiring Jev into Codex and Claude Code as an MCP tool
 | `poradar serve` | Local radar dashboard at http://127.0.0.1:8642 (localhost only). |
 | `poradar doctor` | Providers, routes, bank, store. Never prints secrets. |
 | `poradar dryrun [--cloud]` | One decision call on a bundled fixture. Writes nothing. |
+| `poradar log add\|show\|export` | The habitual log the NCI method insists on: dated entries with claim, score, and verdict, so patterns show up over months. |
 | `poradar questions show\|import\|reset` | The question bank is data; replace it after reconciling with the source transcript (`docs/RECONCILE.md`). |
 
 ## How the score works
@@ -57,6 +58,9 @@ Engineered Reality Score (ERS, 0 to 100) fuses two independent evidence blocks i
 - **Semantic (when a decider is live):** ten bounded questions from `src/poradar/questions.json`
   (primary source, manufactured urgency, one-sidedness, tribal framing, genre, dominant technique,
   narrative move, emotional engineering, verifiability, engineered likelihood), each gated by confidence.
+
+Every result also carries an NCI-style 20-row worksheet (1 to 5 per row, receipts on each row, human-only
+rows labeled) and a Deep Truth "define first" list of loaded terms the text never defines.
 
 Rejected semantic answers never push weight onto lexical terms. Opinion and satire cap at 60. Every
 result fails closed without evidence and falsifiers. Bands: quiet, watch, dense, saturated.

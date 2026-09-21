@@ -18,6 +18,21 @@ GAIN = re.compile(r"\b(save[ds]?|saving|gain\w*|improv\w*|protect\w*|secure[ds]?
 TRIBAL = re.compile(r"\b(they|them|these people|the elites?|globalists?|patriots?|traitors?|real (?:americans|people)|the enemy|our side|their side|us vs\.? them|sheep|shills?)\b", re.I)
 
 
+ABSTRACTIONS = re.compile(r"\b(the elites?|globalists?|the establishment|the system|the regime|deep state|real (?:people|americans|citizens)|patriots?|extremists?|radicals?|woke|the media|big (?:pharma|tech)|freedom|liberty|the people|our (?:way of life|values)|the agenda|they want)\b", re.I)
+
+
+def loaded_abstractions(text: str, limit: int = 6) -> list[str]:
+    """Deep Truth Mode: terms the text leans on without defining. Returns distinct lowercased hits."""
+    seen: list[str] = []
+    for m in ABSTRACTIONS.finditer(text):
+        t = m.group(0).lower()
+        if t not in seen:
+            seen.append(t)
+        if len(seen) >= limit:
+            break
+    return seen
+
+
 def sentences(text: str) -> list[str]:
     return [s.strip() for s in _SENT.split(text) if len(s.split()) >= 4]
 

@@ -29,6 +29,7 @@ SEMANTIC_IDS = (
     "loss_framing",
     "source_transparency",
     "organic_explanation_strength",
+    "undefined_terms",
 )
 CORE_IDS = SEMANTIC_IDS[:10]
 

@@ -23,6 +23,10 @@ CREATE TABLE IF NOT EXISTS feeds (
   items_total INTEGER DEFAULT 0, dead INTEGER DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, payload TEXT, created TEXT);
+CREATE TABLE IF NOT EXISTS log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, logged TEXT NOT NULL, claim TEXT NOT NULL, summary TEXT,
+  item_id TEXT, ers REAL, worksheet_total INTEGER, band TEXT, verdict TEXT NOT NULL, notes TEXT
+);
 """
 
 
@@ -116,6 +120,21 @@ class Store:
             (key, json.dumps(payload), datetime.now(timezone.utc).isoformat()),
         )
         self.conn.commit()
+
+    # habitual log (NCI: dated entries build calibrated intuition)
+    def log_add(self, *, claim: str, verdict: str, summary: str | None = None, item_id: str | None = None,
+                ers: float | None = None, worksheet_total: int | None = None, band: str | None = None,
+                notes: str | None = None, logged: str | None = None) -> int:
+        cur = self.conn.execute(
+            "INSERT INTO log(logged,claim,summary,item_id,ers,worksheet_total,band,verdict,notes) VALUES (?,?,?,?,?,?,?,?,?)",
+            (logged or datetime.now(timezone.utc).isoformat(timespec="minutes"), claim, summary, item_id, ers,
+             worksheet_total, band, verdict, notes),
+        )
+        self.conn.commit()
+        return int(cur.lastrowid)
+
+    def log_entries(self, limit: int = 500) -> list[dict[str, Any]]:
+        return [dict(r) for r in self.conn.execute("SELECT * FROM log ORDER BY logged DESC, id DESC LIMIT ?", (limit,))]
 
     def close(self) -> None:
         self.conn.close()

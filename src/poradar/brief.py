@@ -29,7 +29,10 @@ def template_brief(r: RadarResult) -> str:
         lines.append("Nothing reached the reporting threshold.")
     if r.mode == "lexical-only":
         lines.append("Only surface signals were available; no semantic judgment was made, so treat this as a triage cue.")
+    if r.define_first:
+        lines.append("Define first (Deep Truth Mode): " + ", ".join(r.define_first) + "; until these terms are pinned down, the argument cannot be evaluated.")
     lines.append("Steel-man: serious organic news is often urgent, emotional, and widely syndicated; none of that alone is engineering.")
+    lines.append("If this is later debunked, expect the continued influence effect: log the entry with today's date so the retraction is on record.")
     lines.append("Check next: " + "; ".join(r.falsifiers[:3]) + ".")
     lines.append(r.disclaimer)
     return " ".join(lines)

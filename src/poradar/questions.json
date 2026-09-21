@@ -1,6 +1,6 @@
 {
-  "version": "0.2-provisional",
-  "note": "Provisional bank. Reconciled with the Multiplex transcript excerpt (NCI PsyOps Identification Tool v8.3 by Chase Hughes: 20 categories x 1-5, bands 0-25/26-50/51-75/76-100, receipts, conflicting sources, prove-yourself-wrong) plus its psychology chapters (amygdala/System 1, illusory truth, prospect-theory framing, social identity, Cialdini). The uploaded transcript is truncated at 20,000 characters, so the full list of 20 NCI categories is not in it; see docs/RECONCILE.md. Ids are not sent to the model; instructions carry the full meaning.",
+  "version": "0.3-provisional",
+  "note": "Provisional bank. Reconciled with the Multiplex transcript (NCI PsyOps Identification Tool v8.3 by Chase Hughes: 20 categories x 1-5, bands 0-25/26-50/51-75/76-100, receipts, conflicting sources, prove-yourself-wrong, habitual dated logging, Deep Truth Mode ontology) and its psychology chapters (amygdala/System 1, illusory truth, continued influence, prospect-theory framing, social identity, Cialdini: authority, social proof, urgency). The transcript does not enumerate the 20 category names, so the worksheet rows are composed from its named elements; see docs/RECONCILE.md. Ids are not sent to the model; instructions carry the full meaning.",
   "questions": {
     "primary_source": {
       "type": "noul",
@@ -151,6 +151,10 @@
         "Strong: the text reads naturally as ordinary reporting or honest argument",
         "Compelling: nothing in the text requires an engineered explanation"
       ]
+    },
+    "undefined_terms": {
+      "type": "noul",
+      "instructions": "Deep Truth Mode ontology check: does the argument rest on loaded abstractions that the text never defines (for example 'the elites', 'freedom', 'the establishment', 'real people', 'extremists'), so that the reader supplies the meaning and the emotional payload? Answer false when key terms are defined or used in a plain, concrete sense."
     }
   }
 }

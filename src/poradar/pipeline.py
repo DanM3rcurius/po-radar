@@ -11,6 +11,7 @@ from .decisions.router import Route, select
 from .fusion import fuse
 from .models import ClusterSignals, Item, LexicalSignals, RadarResult, SemanticResult
 from .questions import bank_status
+from .receipts import loaded_abstractions
 from .signals import cluster_items, cluster_signals, lexical_signals
 from .store import Store
 from .worksheet import build as build_worksheet
@@ -65,6 +66,7 @@ async def run(
             r = fuse(item_id=i.id, narrative_id=nid, title=i.title, lexical=lex[i.id], cluster=cs,
                      semantic=semantic.get(i.id), bank=bank)
             r.worksheet = build_worksheet(i, lex[i.id], cs, semantic.get(i.id), now)
+            r.define_first = loaded_abstractions(i.text)
             if cs.item_count <= 1:
                 r.falsifiers.append("NCI rule: read opposing and international coverage of the same event before trusting this score")
             if brief:

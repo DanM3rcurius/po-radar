@@ -25,6 +25,9 @@ app = typer.Typer(help="Psyop Radar: signals to investigate, not an attribution 
                   no_args_is_help=True, add_completion=False)
 questions_app = typer.Typer(help="Inspect or replace the question bank.")
 app.add_typer(questions_app, name="questions")
+log_app = typer.Typer(help="Habitual log: dated entries (claim, score, verdict) that build calibrated intuition.")
+app.add_typer(log_app, name="log")
+VERDICTS = ("organic", "sensationalized", "engineered", "unsure")
 console = Console()
 err = Console(stderr=True)
 
@@ -86,6 +89,8 @@ def _render(r: RadarResult, as_json: bool) -> None:
         for row in w.rows:
             wt.add_row(str(row.n), row.category, str(row.score), row.basis, row.receipt[:90])
         console.print(wt)
+    if r.define_first:
+        console.print("[bold]Define first (Deep Truth Mode):[/] " + ", ".join(r.define_first))
     if r.brief:
         console.print(Panel(r.brief, title="brief"))
     console.print(f"[dim]{DISCLAIMER}[/dim]")
@@ -270,6 +275,64 @@ def dryrun(
         v = f"{float(a.value):.2f}" if a.type == "noul" else (a.label or str(a.value))
         t.add_row(a.qid, v, f"{a.confidence:.2f}", a.gate)
     console.print(t)
+
+
+@log_app.command("add")
+def log_add(
+    claim: str = typer.Argument(..., help="the core claim, in your words"),
+    verdict: str = typer.Option(..., "--verdict", help="organic | sensationalized | engineered | unsure"),
+    summary: str = typer.Option(None, help="one-line summary"),
+    item: str = typer.Option(None, "--item", help="item id from a --save scan, to attach its scores"),
+    notes: str = typer.Option(None, help="receipts, sources read, what would change your mind"),
+    date: str = typer.Option(None, help="ISO date/time; defaults to now (UTC)"),
+) -> None:
+    """Write one dated entry. The date is the point: patterns show up across months, not days."""
+    if verdict not in VERDICTS:
+        raise typer.BadParameter(f"verdict must be one of {VERDICTS}")
+    store = Store()
+    ers = wt = band = None
+    if item:
+        res = store.get(item)
+        if not res:
+            err.print(f"no saved result for item {item}; run `poradar scan ... --save` first")
+            raise typer.Exit(2)
+        ers, band = res["ers"], res["band"]
+        wt = (res.get("worksheet") or {}).get("total")
+    n = store.log_add(claim=claim, verdict=verdict, summary=summary, item_id=item, ers=ers, worksheet_total=wt,
+                      band=band, notes=notes, logged=date)
+    console.print(f"logged entry #{n} ({verdict}) at {date or 'now'}")
+
+
+@log_app.command("show")
+def log_show(limit: int = 50) -> None:
+    """Dated entries, newest first."""
+    rows = Store().log_entries(limit)
+    t = Table(title="habitual log", box=None)
+    for c in ("date", "verdict", "ERS", "NCI", "claim"):
+        t.add_column(c)
+    for r in rows:
+        t.add_row(r["logged"][:16], r["verdict"], "" if r["ers"] is None else f"{r['ers']:.0f}",
+                  "" if r["worksheet_total"] is None else str(r["worksheet_total"]), r["claim"][:70])
+    console.print(t)
+    if rows:
+        by = {}
+        for r in rows:
+            by[r["verdict"]] = by.get(r["verdict"], 0) + 1
+        console.print("[dim]" + ", ".join(f"{k}: {v}" for k, v in sorted(by.items())) + "[/dim]")
+
+
+@log_app.command("export")
+def log_export(path: Path = typer.Argument(Path("poradar-log.csv"))) -> None:
+    """CSV of the log (your notebook, your machine)."""
+    import csv
+
+    rows = Store().log_entries(100000)
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["logged", "verdict", "ers", "worksheet_total", "band", "claim", "summary", "item_id", "notes"])
+        for r in rows:
+            w.writerow([r["logged"], r["verdict"], r["ers"], r["worksheet_total"], r["band"], r["claim"], r["summary"], r["item_id"], r["notes"]])
+    console.print(f"wrote {len(rows)} entries to {path}")
 
 
 @questions_app.command("show")

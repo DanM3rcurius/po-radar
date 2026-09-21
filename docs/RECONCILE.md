@@ -1,9 +1,9 @@
 # Reconcile the question bank with the source transcript
 
-Status (2026-09-21): **partially reconciled.** The Multiplex transcript was delivered in chat and
-uploaded to trunk as `psyopradar-transcript-multiplex`, but both copies stop at exactly 20,000
-characters, mid-sentence ("...they map directl"). Everything the excerpt specifies is now in the
-app; the parts after the cut are not.
+Status (2026-09-21, second pass): **reconciled with everything the transcript specifies.** The full
+transcript on trunk (`psyopradar-transcript-multiplex`, 30.5 kB) describes the tool's shape, bands,
+discipline, and psychology, but it never enumerates the 20 category names. The worksheet therefore
+composes 20 rows from the elements the transcript names; rename rows when the canonical list is in hand.
 
 ## What the transcript specifies and where it landed
 
@@ -23,15 +23,19 @@ app; the parts after the cut are not.
 | Social identity theory | `tribal_signal` question plus the tribal lexicon receipt |
 | Cialdini's principles | `cialdini_lever` choice question |
 | Amplification by bot networks | human row (needs platform data) |
+| Cialdini mapping: authority ("leading experts warn"), social proof, urgency | `cialdini_lever` options plus the anonymous-authority and urgency rows |
+| Continued influence effect (debunks do not erase the payload) | brief line; the dated log keeps the retraction on record |
+| Cognitive load (a tired brain defaults to System 1; use an external structured tool) | the worksheet itself; `needs_review` flag |
+| Habitual logging: dated entries with claim, summary, score, verdict; calibrated intuition over months | `poradar log add|show|export`; `log` table in the store |
+| Deep Truth Mode: define the ontology of loaded terms before arguing; refuse binary conclusions | `undefined_terms` question; `define_first` on every result; `black_and_white` technique |
 
-## Still to reconcile (after the cut)
+## Still open
 
-1. The names of all 20 NCI categories and how they map to Cialdini's principles. Our worksheet
-   composes 20 rows from the elements above; when the real list is available, rename or replace rows
-   in `worksheet.py` to match, keeping the 1-5 scale.
-2. Any interpretive guidance the source gives per category (what a 3 looks like versus a 5).
-3. Whether the source scores per claim or per narrative. The app scores per item and rolls up per
-   narrative.
+1. The canonical names of the 20 NCI categories (not in the transcript). When available, rename or
+   replace rows in `worksheet.py`, keeping the 1-5 scale.
+2. Per-category guidance on what a 3 looks like versus a 5 (not in the transcript).
+3. The transcript ends mid-sentence ("...the tool and the neuroscience."); if there is a closing
+   section, send it.
 
 ## How to finish
 
