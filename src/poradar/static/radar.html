@@ -98,8 +98,12 @@ main {
 .ring { fill: none; stroke: var(--grid); stroke-width: 1; }
 .ring.alt { stroke: var(--grid-soft); }
 .spoke { stroke: var(--grid-soft); stroke-width: 1; }
-.ringlabel { fill: var(--ink-faint); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
-.centerlabel { fill: var(--ink-faint); font-size: 10px; letter-spacing: .06em; }
+.ringlabel, .centerlabel {
+  fill: var(--ink-faint); letter-spacing: .1em; text-transform: uppercase;
+  paint-order: stroke; stroke: var(--panel-bg); stroke-width: 3px; stroke-linejoin: round;
+}
+.ringlabel { font-size: 11px; }
+.centerlabel { font-size: 10px; letter-spacing: .06em; }
 .sweep { animation: sweep 9s linear infinite; }
 @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .sweep { animation: none; opacity: .18; } }
@@ -330,7 +334,7 @@ footer .disclaimer { color: var(--ink); font-weight: 600; }
   function layout() {
     var w = window.innerWidth || 1024;
     if (w < 760) {
-      return { W: 440, H: 640, CX: 220, CY: 218, RMAX: 166, fTitle: 12, fFals: 11, side: false };
+      return { W: 440, H: 548, CX: 220, CY: 196, RMAX: 150, fTitle: 12, fFals: 11, side: false };
     }
     return { W: 900, H: 640, CX: 450, CY: 300, RMAX: 244, fTitle: 12, fFals: 11, side: true };
   }
@@ -406,9 +410,6 @@ footer .disclaimer { color: var(--ink); font-weight: 600; }
       t.textContent = pair[0];
       root.appendChild(t);
     });
-    var c100 = svg("text", { "class": "centerlabel", x: L.CX, y: L.CY + 15, "text-anchor": "middle" });
-    c100.textContent = "ERS 100";
-    root.appendChild(c100);
     var c0 = svg("text", {
       "class": "centerlabel", x: L.CX, y: L.CY + L.RMAX + 15, "text-anchor": "middle"
     });
@@ -596,6 +597,7 @@ footer .disclaimer { color: var(--ink); font-weight: 600; }
     fill.style.background = "var(--band-" + bandOf(top) + ")";
     meter.appendChild(fill);
     panel.appendChild(meter);
+    if (top.nci_reading) { panel.appendChild(el("p", "reading", top.nci_reading)); }
     panel.appendChild(el("p", "fals", "narrative " + group.id + " · " + group.results.length + " scored item(s)"));
 
     section(panel, "Evidence");

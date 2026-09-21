@@ -203,3 +203,22 @@ def test_sample_results_validate_against_the_model() -> None:
 
     for raw in json.loads(DEMO_JSON.read_text(encoding="utf-8")):
         RadarResult.model_validate(raw)
+
+
+def test_panel_renders_the_worksheet_the_reading_and_receipts() -> None:
+    """The panel is the place where the whole result is shown, model fields included."""
+    html = RADAR_HTML.read_text(encoding="utf-8")
+    assert "function drawWorksheet(" in html
+    for field in ("nci_reading", "worksheet", "lower_it", "receipt", "e.quote", "auto_rows"):
+        assert field in html, field
+
+
+def test_sample_results_carry_the_reading_and_one_full_worksheet() -> None:
+    data = json.loads(DEMO_JSON.read_text(encoding="utf-8"))
+    assert all(r["nci_reading"] for r in data)
+    sheets = [r["worksheet"] for r in data if r.get("worksheet")]
+    assert len(sheets) == 1
+    sheet = sheets[0]
+    assert len(sheet["rows"]) == 20
+    assert 0 <= sheet["total"] <= 100
+    assert sheet["auto_rows"] + sheet["human_rows"] == 20

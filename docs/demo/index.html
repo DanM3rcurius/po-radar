@@ -98,8 +98,12 @@ main {
 .ring { fill: none; stroke: var(--grid); stroke-width: 1; }
 .ring.alt { stroke: var(--grid-soft); }
 .spoke { stroke: var(--grid-soft); stroke-width: 1; }
-.ringlabel { fill: var(--ink-faint); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
-.centerlabel { fill: var(--ink-faint); font-size: 10px; letter-spacing: .06em; }
+.ringlabel, .centerlabel {
+  fill: var(--ink-faint); letter-spacing: .1em; text-transform: uppercase;
+  paint-order: stroke; stroke: var(--panel-bg); stroke-width: 3px; stroke-linejoin: round;
+}
+.ringlabel { font-size: 11px; }
+.centerlabel { font-size: 10px; letter-spacing: .06em; }
 .sweep { animation: sweep 9s linear infinite; }
 @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .sweep { animation: none; opacity: .18; } }
@@ -173,6 +177,17 @@ ul.falsifiers li { border-left: 3px solid var(--band-quiet); padding-left: 9px; 
 .prob .bar { height: 5px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
 .prob .bar > span { display: block; height: 100%; background: var(--accent); }
 .prob .val { text-align: right; font-variant-numeric: tabular-nums; }
+.quote { margin: 4px 0 0; padding: 4px 0 4px 9px; border-left: 2px solid var(--line); color: var(--ink-dim); font-size: 12px; font-style: italic; }
+.reading { font-size: 12.5px; color: var(--ink-dim); margin: 6px 0 0; }
+details.worksheet { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; }
+details.worksheet > summary { cursor: pointer; font-size: 12.5px; font-weight: 600; }
+.wrow { border-top: 1px solid var(--line-soft); padding: 6px 0 0; margin-top: 6px; font-size: 12px; }
+.wrow .hd { display: flex; align-items: center; gap: 7px; }
+.wrow .cat { font-weight: 600; flex: 1 1 auto; overflow-wrap: anywhere; }
+.pips { display: inline-flex; gap: 2px; flex: 0 0 auto; }
+.pips i { width: 7px; height: 7px; border-radius: 2px; background: var(--line); display: block; }
+.pips i.on { background: var(--accent); }
+.wrow .receipt { color: var(--ink-dim); display: block; margin-top: 2px; overflow-wrap: anywhere; }
 .brief { font-size: 13px; white-space: pre-wrap; color: var(--ink); background: var(--chip-bg); border-radius: 9px; padding: 10px; overflow-wrap: anywhere; }
 .sources { font-size: 12.5px; }
 .sources code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-dim); }
@@ -195,10 +210,10 @@ footer .disclaimer { color: var(--ink); font-weight: 600; }
     <span class="tagline">narrative clusters by engineered-reality signal density</span>
   </div>
   <ul class="legend" aria-label="legend">
-    <li><span class="swatch saturated"></span>saturated 75&ndash;100</li>
-    <li><span class="swatch dense"></span>dense 50&ndash;74</li>
-    <li><span class="swatch watch"></span>watch 25&ndash;49</li>
-    <li><span class="swatch quiet"></span>quiet 0&ndash;24</li>
+    <li><span class="swatch saturated"></span>saturated 76&ndash;100</li>
+    <li><span class="swatch dense"></span>dense 51&ndash;75</li>
+    <li><span class="swatch watch"></span>watch 26&ndash;50</li>
+    <li><span class="swatch quiet"></span>quiet 0&ndash;25</li>
     <li><span class="swatch lexonly"></span>lexical-only (no semantic answer accepted)</li>
     <li>size = items in cluster &middot; glow = burst</li>
   </ul>
@@ -252,12 +267,14 @@ window.PORADAR_EMBEDDED = [
       {
         "signal": "attribution_absence",
         "value": 0.86,
-        "note": "no named official, no document link, no direct quote on the record"
+        "note": "no named official, no document link, no direct quote on the record",
+        "quote": "No operator would go on the record, but insiders describe a decision taken days earlier."
       },
       {
         "signal": "authority_words",
         "value": 0.71,
-        "note": "\"insiders\", \"grid engineers familiar with\" appear without a named entity nearby"
+        "note": "\"insiders\", \"grid engineers familiar with\" appear without a named entity nearby",
+        "quote": "Grid engineers familiar with the corridor say the cascade was entirely avoidable."
       },
       {
         "signal": "engineered_likelihood",
@@ -385,7 +402,176 @@ window.PORADAR_EMBEDDED = [
         "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
         "url": "https://dailysignal.example.test/vannemark"
       }
-    ]
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": {
+      "rows": [
+        {
+          "n": 1,
+          "category": "timing anomaly",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "nine items inside six hours against a trailing 72h mean of 0.4",
+          "lower_it": "a publication pattern that matches the cluster's ordinary tempo"
+        },
+        {
+          "n": 2,
+          "category": "historical parallel",
+          "score": 3,
+          "basis": "human",
+          "receipt": "the framing mirrors the 2024 corridor outage coverage",
+          "lower_it": "a reader who can show the parallel is coincidental rather than borrowed"
+        },
+        {
+          "n": 3,
+          "category": "repetition / illusory truth",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "\"entirely avoidable\" appears in eight of nine items",
+          "lower_it": "the phrase appearing once, in the item that first reported it"
+        },
+        {
+          "n": 4,
+          "category": "loss framing",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "loss words outnumber gain words 6:1 in the lede",
+          "lower_it": "a lede that states what happened before what was lost"
+        },
+        {
+          "n": 5,
+          "category": "identity / tribal framing",
+          "score": 3,
+          "basis": "semantic",
+          "receipt": "tribal_signal p=0.61 but the answer was rejected by the gate",
+          "lower_it": "a semantic pass that clears the gate and returns a low probability"
+        },
+        {
+          "n": 6,
+          "category": "authority pressure",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "\"insiders\", \"engineers familiar with\" carry the central claim",
+          "lower_it": "one named engineer, on the record"
+        },
+        {
+          "n": 7,
+          "category": "source transparency",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "no document, filing, or dataset is linked anywhere in the cluster",
+          "lower_it": "the outage report or docket number, linked"
+        },
+        {
+          "n": 8,
+          "category": "primary documentation",
+          "score": 5,
+          "basis": "semantic",
+          "receipt": "primary_source p(true)=0.08, accepted at confidence 0.84",
+          "lower_it": "any uneditable primary record cited in the text"
+        },
+        {
+          "n": 9,
+          "category": "emotional escalation",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "VADER compound magnitude 0.74, top decile for the corpus",
+          "lower_it": "a neutral recounting of the same events"
+        },
+        {
+          "n": 10,
+          "category": "urgency injection",
+          "score": 4,
+          "basis": "semantic",
+          "receipt": "manufactured_urgency p(true)=0.89",
+          "lower_it": "a story that states the timeline without pressing for a reaction"
+        },
+        {
+          "n": 11,
+          "category": "binary framing",
+          "score": 4,
+          "basis": "semantic",
+          "receipt": "one_sided p(true)=0.93; no counter-explanation appears",
+          "lower_it": "a paragraph steel-manning the equipment-failure explanation"
+        },
+        {
+          "n": 12,
+          "category": "coordinated phrasing",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "mean pairwise 3-shingle Jaccard 0.91, no wire dateline present",
+          "lower_it": "a wire credit line that explains the shared text"
+        },
+        {
+          "n": 13,
+          "category": "amplification burst",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "burst ratio 0.94",
+          "lower_it": "the same items spread across a week"
+        },
+        {
+          "n": 14,
+          "category": "scarcity lever",
+          "score": 2,
+          "basis": "deterministic",
+          "receipt": "one \"last chance\" construction in 612 words",
+          "lower_it": "no scarcity construction at all"
+        },
+        {
+          "n": 15,
+          "category": "social proof lever",
+          "score": 3,
+          "basis": "deterministic",
+          "receipt": "\"everyone in the corridor is asking\" appears twice",
+          "lower_it": "a count of who is actually asking"
+        },
+        {
+          "n": 16,
+          "category": "reciprocity lever",
+          "score": 1,
+          "basis": "deterministic",
+          "receipt": "no evidence found in the text",
+          "lower_it": "—"
+        },
+        {
+          "n": 17,
+          "category": "consistency lever",
+          "score": 2,
+          "basis": "deterministic",
+          "receipt": "one \"as we reported\" callback",
+          "lower_it": "a story that stands on its own evidence"
+        },
+        {
+          "n": 18,
+          "category": "dissent suppression",
+          "score": 3,
+          "basis": "human",
+          "receipt": "no dissenting view is quoted; whether one was sought is unknowable from the text",
+          "lower_it": "a reader who can show a counter-view was offered and declined"
+        },
+        {
+          "n": 19,
+          "category": "correction resistance",
+          "score": 2,
+          "basis": "human",
+          "receipt": "no correction notice on any item in the cluster",
+          "lower_it": "a correction appended after the first item"
+        },
+        {
+          "n": 20,
+          "category": "prebunk / inoculation language",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "\"they will tell you this was weather\" appears in six items",
+          "lower_it": "no pre-emptive dismissal of the alternative explanation"
+        }
+      ],
+      "total": 68,
+      "reading": "51-75: strong engineered elements; anomalies too frequent to be coincidental",
+      "auto_rows": 17,
+      "human_rows": 3
+    }
   },
   {
     "item_id": "demo-0002",
@@ -474,7 +660,9 @@ window.PORADAR_EMBEDDED = [
         "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
         "url": "https://dailysignal.example.test/vannemark"
       }
-    ]
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": null
   },
   {
     "item_id": "demo-0003",
@@ -577,7 +765,9 @@ window.PORADAR_EMBEDDED = [
         "title": "What the Vannemark outage tells us about who really runs the grid",
         "url": "https://corridorwire.example.test/vannemark-who-runs-the-grid"
       }
-    ]
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": null
   },
   {
     "item_id": "demo-0004",
@@ -606,7 +796,8 @@ window.PORADAR_EMBEDDED = [
       {
         "signal": "absolutism",
         "value": 0.55,
-        "note": "\"overwhelming\", \"undeniable\", \"nobody wanted this\" per 100 words"
+        "note": "\"overwhelming\", \"undeniable\", \"nobody wanted this\" per 100 words",
+        "quote": "Nobody wanted this registry, and the objection was overwhelming."
       },
       {
         "signal": "manufactured_urgency",
@@ -708,7 +899,9 @@ window.PORADAR_EMBEDDED = [
         "title": "Ministry pauses the health registry after public objection",
         "url": "https://civicledger.example.test/registry"
       }
-    ]
+    ],
+    "nci_reading": "51-75: strong engineered elements; anomalies too frequent to be coincidental",
+    "worksheet": null
   },
   {
     "item_id": "demo-0005",
@@ -810,7 +1003,9 @@ window.PORADAR_EMBEDDED = [
         "title": "Ministry pauses the health registry after public objection",
         "url": "https://civicledger.example.test/registry"
       }
-    ]
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
   },
   {
     "item_id": "demo-0006",
@@ -824,7 +1019,8 @@ window.PORADAR_EMBEDDED = [
       {
         "signal": "urgency",
         "value": 0.88,
-        "note": "\"breaking\", \"act now\", \"before it is too late\" at 2.4 per 100 words"
+        "note": "\"breaking\", \"act now\", \"before it is too late\" at 2.4 per 100 words",
+        "quote": "BREAKING — act now, before they close Kelstone for good!!"
       },
       {
         "signal": "shout",
@@ -877,7 +1073,9 @@ window.PORADAR_EMBEDDED = [
         "title": "BREAKING: convoy turned back at the Kelstone checkpoint",
         "url": "https://shortpost.example.test/p/88213"
       }
-    ]
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
   },
   {
     "item_id": "demo-0007",
@@ -891,7 +1089,8 @@ window.PORADAR_EMBEDDED = [
       {
         "signal": "absolutism",
         "value": 0.68,
-        "note": "\"everyone knows\", \"nobody disputes\", \"proven\" at 1.9 per 100 words"
+        "note": "\"everyone knows\", \"nobody disputes\", \"proven\" at 1.9 per 100 words",
+        "quote": "Everyone knows the petition was rigged; nobody disputes it at this point."
       },
       {
         "signal": "authority_words",
@@ -944,7 +1143,9 @@ window.PORADAR_EMBEDDED = [
         "title": "Everyone knows the recall petition was rigged, say organizers",
         "url": "https://countyclarion.example.test/recall-rigged"
       }
-    ]
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
   },
   {
     "item_id": "demo-0008",
@@ -958,7 +1159,8 @@ window.PORADAR_EMBEDDED = [
       {
         "signal": "attribution_absence",
         "value": 0.08,
-        "note": "names the port authority, the permit number, and links the sediment survey"
+        "note": "names the port authority, the permit number, and links the sediment survey",
+        "quote": "Port authority director Imelda Rask said permit 4471 was granted with the sediment survey attached."
       },
       {
         "signal": "uniformity",
@@ -1070,7 +1272,9 @@ window.PORADAR_EMBEDDED = [
         "title": "Dredging permit 4471 clears review",
         "url": "https://harbourjournal.example.test/4471"
       }
-    ]
+    ],
+    "nci_reading": "0-25: low probability of an engineered operation; likely organic",
+    "worksheet": null
   }
 ];
 window.PORADAR_BANK = "provisional";
@@ -1174,7 +1378,7 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
   function layout() {
     var w = window.innerWidth || 1024;
     if (w < 760) {
-      return { W: 440, H: 640, CX: 220, CY: 218, RMAX: 166, fTitle: 12, fFals: 11, side: false };
+      return { W: 440, H: 548, CX: 220, CY: 196, RMAX: 150, fTitle: 12, fFals: 11, side: false };
     }
     return { W: 900, H: 640, CX: 450, CY: 300, RMAX: 244, fTitle: 12, fFals: 11, side: true };
   }
@@ -1250,9 +1454,6 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
       t.textContent = pair[0];
       root.appendChild(t);
     });
-    var c100 = svg("text", { "class": "centerlabel", x: L.CX, y: L.CY + 15, "text-anchor": "middle" });
-    c100.textContent = "ERS 100";
-    root.appendChild(c100);
     var c0 = svg("text", {
       "class": "centerlabel", x: L.CX, y: L.CY + L.RMAX + 15, "text-anchor": "middle"
     });
@@ -1389,6 +1590,30 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
     return dl;
   }
 
+  function drawWorksheet(ws) {
+    var box = el("details", "worksheet");
+    var sum = el("summary", null,
+      num(ws.total) + " / 100 \u00b7 " + (ws.rows || []).length + " categories \u00b7 " +
+      num(ws.auto_rows) + " scored from the text, " + num(ws.human_rows) + " need a human");
+    box.appendChild(sum);
+    if (ws.reading) { box.appendChild(el("p", "reading", ws.reading)); }
+    (ws.rows || []).forEach(function (row) {
+      var r = el("div", "wrow");
+      var hd = el("div", "hd");
+      hd.appendChild(el("span", "cat", num(row.n) + ". " + (row.category || "")));
+      var pips = el("span", "pips");
+      pips.setAttribute("aria-label", num(row.score) + " of 5");
+      for (var i = 1; i <= 5; i++) { pips.appendChild(el("i", i <= num(row.score) ? "on" : null)); }
+      hd.appendChild(pips);
+      hd.appendChild(el("span", "chip", row.basis || "?"));
+      r.appendChild(hd);
+      if (row.receipt) { r.appendChild(el("span", "receipt", row.receipt)); }
+      if (row.lower_it) { r.appendChild(el("span", "receipt", "\u21ba " + row.lower_it)); }
+      box.appendChild(r);
+    });
+    return box;
+  }
+
   function drawPanel(group) {
     var panel = document.getElementById("panel");
     while (panel.firstChild) { panel.removeChild(panel.firstChild); }
@@ -1416,6 +1641,7 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
     fill.style.background = "var(--band-" + bandOf(top) + ")";
     meter.appendChild(fill);
     panel.appendChild(meter);
+    if (top.nci_reading) { panel.appendChild(el("p", "reading", top.nci_reading)); }
     panel.appendChild(el("p", "fals", "narrative " + group.id + " · " + group.results.length + " scored item(s)"));
 
     section(panel, "Evidence");
@@ -1427,6 +1653,7 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
       head.appendChild(el("b", null, typeof e.value === "number" ? fixed(e.value, 2) : String(e.value)));
       li.appendChild(head);
       li.appendChild(el("span", "note", e.note || ""));
+      if (e.quote) { li.appendChild(el("blockquote", "quote", "\u201c" + e.quote + "\u201d")); }
       ev.appendChild(li);
     });
     if (!ev.childNodes.length) { ev.appendChild(el("li", "note", "no evidence recorded")); }
@@ -1497,6 +1724,11 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
       ["items", String(num(cl.item_count, 1))],
       ["unattributed items", String(num(cl.unattributed_count))]
     ]));
+
+    if (top.worksheet && Array.isArray(top.worksheet.rows) && top.worksheet.rows.length) {
+      section(panel, "Worksheet");
+      panel.appendChild(drawWorksheet(top.worksheet));
+    }
 
     if (top.brief) {
       section(panel, "Forensic brief");
