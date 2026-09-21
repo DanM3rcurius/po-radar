@@ -1378,7 +1378,7 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
   function layout() {
     var w = window.innerWidth || 1024;
     if (w < 760) {
-      return { W: 440, H: 548, CX: 220, CY: 196, RMAX: 150, fTitle: 12, fFals: 11, side: false };
+      return { W: 440, H: 424, CX: 220, CY: 178, RMAX: 140, fTitle: 12, fFals: 11, side: false };
     }
     return { W: 900, H: 640, CX: 450, CY: 300, RMAX: 244, fTitle: 12, fFals: 11, side: true };
   }
@@ -1389,9 +1389,10 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
   function overlaps(a, b) {
     return !(a.x1 < b.x0 - 5 || a.x0 > b.x1 + 5 || a.y1 < b.y0 - 3 || a.y0 > b.y1 + 3);
   }
-  function nudge(box, placed) {
-    var tries = [0, 21, -21, 42, -42, 63, -63, 84, -84, 105, -105, 126, -126];
-    for (var i = 0; i < tries.length; i++) {
+  function nudge(box, placed, step) {
+    var steps = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6], tries = [], i;
+    for (i = 0; i < steps.length; i++) { tries.push(steps[i] * step); }
+    for (i = 0; i < tries.length; i++) {
       var moved = { x0: box.x0, x1: box.x1, y0: box.y0 + tries[i], y1: box.y1 + tries[i] };
       var clear = true;
       for (var j = 0; j < placed.length; j++) {
@@ -1516,7 +1517,7 @@ window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
       ly = clamp(ly, L.fTitle + 4, L.H - L.fFals - 8);
       box.y0 = ly - L.fTitle;
       box.y1 = ly + L.fFals + 5;
-      var dy = nudge(box, placed);
+      var dy = nudge(box, placed, L.fTitle + L.fFals + 7);
       ly += dy;
       box.y0 += dy;
       box.y1 += dy;
