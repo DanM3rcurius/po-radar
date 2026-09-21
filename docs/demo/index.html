@@ -1,0 +1,1843 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Psyop Radar — static demo</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f4f6f8;
+  --panel-bg: #ffffff;
+  --ink: #16202b;
+  --ink-dim: #5a6b7c;
+  --ink-faint: #8595a5;
+  --line: #d6dee6;
+  --line-soft: #e7edf2;
+  --accent: #1f6f8b;
+  --accent-ink: #ffffff;
+  --grid: #c3d0da;
+  --grid-soft: #dde6ec;
+  --sweep: #1f6f8b;
+  --band-quiet: #2f8f6f;
+  --band-watch: #b8860b;
+  --band-dense: #c2661f;
+  --band-saturated: #b3352f;
+  --chip-bg: #eef3f7;
+  --shadow: 0 8px 28px rgba(20, 35, 50, .14);
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1218;
+    --panel-bg: #141c24;
+    --ink: #e6edf3;
+    --ink-dim: #a3b1bf;
+    --ink-faint: #75848f;
+    --line: #26323d;
+    --line-soft: #1c262f;
+    --accent: #5fc2d8;
+    --accent-ink: #06121a;
+    --grid: #2b3a46;
+    --grid-soft: #1d2831;
+    --sweep: #5fc2d8;
+    --band-quiet: #4fc79b;
+    --band-watch: #e0b44a;
+    --band-dense: #ef9350;
+    --band-saturated: #f4645c;
+    --chip-bg: #1b252e;
+    --shadow: 0 8px 28px rgba(0, 0, 0, .55);
+  }
+}
+* { box-sizing: border-box; }
+html, body { max-width: 100%; overflow-x: hidden; }
+body {
+  margin: 0;
+  padding: 0 16px 24px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+header { max-width: 1180px; margin: 0 auto; padding: 20px 0 8px; }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+h1 { font-size: 22px; margin: 0; letter-spacing: .02em; }
+.tagline { color: var(--ink-dim); font-size: 13px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.legend li {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ink-dim);
+  background: var(--chip-bg); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 10px;
+}
+.swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--ink-faint); display: inline-block; }
+.swatch.quiet { background: var(--band-quiet); }
+.swatch.watch { background: var(--band-watch); }
+.swatch.dense { background: var(--band-dense); }
+.swatch.saturated { background: var(--band-saturated); }
+.swatch.lexonly {
+  background: repeating-linear-gradient(45deg, var(--ink-faint) 0 2px, transparent 2px 4px);
+  border: 1px solid var(--ink-faint);
+}
+.banner {
+  max-width: 1180px; margin: 14px auto 0;
+  background: var(--chip-bg); border: 1px solid var(--line); border-left: 4px solid var(--band-watch);
+  border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--ink-dim);
+}
+main {
+  max-width: 1180px; margin: 16px auto 0;
+  display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 340px; align-items: start;
+}
+@media (max-width: 900px) { main { grid-template-columns: minmax(0, 1fr); } }
+.card {
+  background: var(--panel-bg); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 12px;
+}
+.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-dim); margin: 0 0 8px; }
+#radar { display: block; width: 100%; max-width: 780px; margin: 0 auto; height: auto; touch-action: manipulation; }
+.ring { fill: none; stroke: var(--grid); stroke-width: 1; }
+.ring.alt { stroke: var(--grid-soft); }
+.spoke { stroke: var(--grid-soft); stroke-width: 1; }
+.ringlabel, .centerlabel {
+  fill: var(--ink-faint); letter-spacing: .1em; text-transform: uppercase;
+  paint-order: stroke; stroke: var(--panel-bg); stroke-width: 3px; stroke-linejoin: round;
+}
+.ringlabel { font-size: 11px; }
+.centerlabel { font-size: 10px; letter-spacing: .06em; }
+.sweep { animation: sweep 9s linear infinite; }
+@keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .sweep { animation: none; opacity: .18; } }
+.blip { cursor: pointer; }
+.blip:focus { outline: none; }
+.blip:focus-visible .dot, .blip.sel .dot { stroke: var(--accent); stroke-width: 3; }
+.dot { stroke: var(--panel-bg); stroke-width: 1.5; }
+.blip.lexonly .dot { stroke-dasharray: 3 2; stroke: var(--ink-faint); }
+.halo { stroke: none; }
+.blabel { fill: var(--ink); paint-order: stroke; stroke: var(--panel-bg); stroke-width: 3.5px; stroke-linejoin: round; }
+.blabel .fals { fill: var(--ink-dim); }
+.leader { stroke: var(--grid); stroke-width: 1; fill: none; }
+.blip.lexonly .blabel { fill: var(--ink-dim); }
+ul.narratives { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 620px; overflow-y: auto; }
+.nrow {
+  width: 100%; text-align: left; cursor: pointer; font: inherit;
+  background: var(--panel-bg); color: var(--ink);
+  border: 1px solid var(--line); border-left: 4px solid var(--ink-faint);
+  border-radius: 9px; padding: 8px 10px; display: grid; gap: 3px;
+}
+.nrow:hover, .nrow:focus-visible { border-color: var(--accent); outline: none; }
+.nrow.sel { box-shadow: inset 0 0 0 1px var(--accent); }
+.nrow.quiet { border-left-color: var(--band-quiet); }
+.nrow.watch { border-left-color: var(--band-watch); }
+.nrow.dense { border-left-color: var(--band-dense); }
+.nrow.saturated { border-left-color: var(--band-saturated); }
+.nrow .top { display: flex; align-items: baseline; gap: 8px; }
+.nrow .ers { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; }
+.nrow .ttl { font-weight: 600; font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
+.nrow .fals { font-size: 11px; color: var(--ink-dim); overflow-wrap: anywhere; }
+.chip {
+  display: inline-block; font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+  border: 1px solid var(--line); border-radius: 999px; padding: 1px 7px; color: var(--ink-dim); background: var(--chip-bg);
+}
+.chip.quiet { color: var(--band-quiet); border-color: var(--band-quiet); }
+.chip.watch { color: var(--band-watch); border-color: var(--band-watch); }
+.chip.dense { color: var(--band-dense); border-color: var(--band-dense); }
+.chip.saturated { color: var(--band-saturated); border-color: var(--band-saturated); }
+.chip.mode-lexical-only { background: repeating-linear-gradient(45deg, var(--chip-bg) 0 4px, var(--line-soft) 4px 8px); }
+#scrim { position: fixed; inset: 0; background: rgba(8, 14, 20, .45); border: 0; padding: 0; }
+#scrim[hidden] { display: none; }
+#panel {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%);
+  background: var(--panel-bg); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+  overflow-y: auto; padding: 16px 16px 32px; z-index: 5;
+}
+#panel[hidden] { display: none; }
+#panel h2 { font-size: 18px; margin: 4px 40px 6px 0; line-height: 1.3; overflow-wrap: anywhere; }
+#panel h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-dim); margin: 18px 0 6px; }
+#panel .close {
+  position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--chip-bg); color: var(--ink); font-size: 16px; cursor: pointer;
+}
+.score { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.score .big { font-size: 32px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.meter { height: 6px; background: var(--line-soft); border-radius: 999px; overflow: hidden; margin: 8px 0 2px; }
+.meter > span { display: block; height: 100%; background: var(--accent); }
+dl.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; margin: 0; font-size: 12.5px; }
+dl.kv dt { color: var(--ink-dim); overflow-wrap: anywhere; }
+dl.kv dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
+ul.plain { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 13px; }
+ul.plain li { overflow-wrap: anywhere; }
+.ev { border-left: 3px solid var(--line); padding-left: 9px; }
+.ev b { font-variant-numeric: tabular-nums; }
+.ev .note { display: block; color: var(--ink-dim); font-size: 12px; }
+ul.falsifiers li { border-left: 3px solid var(--band-quiet); padding-left: 9px; }
+.ans { border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; }
+.ans .hd { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ans .qid { font-weight: 600; font-size: 12.5px; }
+.prob { display: grid; grid-template-columns: minmax(0, 1fr) 42px; gap: 6px; align-items: center; font-size: 11.5px; color: var(--ink-dim); margin-top: 3px; }
+.prob .bar { height: 5px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+.prob .bar > span { display: block; height: 100%; background: var(--accent); }
+.prob .val { text-align: right; font-variant-numeric: tabular-nums; }
+.quote { margin: 4px 0 0; padding: 4px 0 4px 9px; border-left: 2px solid var(--line); color: var(--ink-dim); font-size: 12px; font-style: italic; }
+.reading { font-size: 12.5px; color: var(--ink-dim); margin: 6px 0 0; }
+details.worksheet { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; }
+details.worksheet > summary { cursor: pointer; font-size: 12.5px; font-weight: 600; }
+.wrow { border-top: 1px solid var(--line-soft); padding: 6px 0 0; margin-top: 6px; font-size: 12px; }
+.wrow .hd { display: flex; align-items: center; gap: 7px; }
+.wrow .cat { font-weight: 600; flex: 1 1 auto; overflow-wrap: anywhere; }
+.pips { display: inline-flex; gap: 2px; flex: 0 0 auto; }
+.pips i { width: 7px; height: 7px; border-radius: 2px; background: var(--line); display: block; }
+.pips i.on { background: var(--accent); }
+.wrow .receipt { color: var(--ink-dim); display: block; margin-top: 2px; overflow-wrap: anywhere; }
+.brief { font-size: 13px; white-space: pre-wrap; color: var(--ink); background: var(--chip-bg); border-radius: 9px; padding: 10px; overflow-wrap: anywhere; }
+.sources { font-size: 12.5px; }
+.sources code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-dim); }
+footer {
+  max-width: 1180px; margin: 22px auto 0; padding-top: 12px;
+  border-top: 1px solid var(--line); color: var(--ink-dim); font-size: 12.5px;
+}
+footer .disclaimer { color: var(--ink); font-weight: 600; }
+.empty { color: var(--ink-dim); font-size: 13px; padding: 14px 2px; }
+@media (max-width: 900px) {
+  ul.narratives { max-height: none; }
+  #panel { width: 100%; border-left: 0; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>Psyop Radar</h1>
+    <span class="tagline">narrative clusters by engineered-reality signal density</span>
+  </div>
+  <ul class="legend" aria-label="legend">
+    <li><span class="swatch saturated"></span>saturated 76&ndash;100</li>
+    <li><span class="swatch dense"></span>dense 51&ndash;75</li>
+    <li><span class="swatch watch"></span>watch 26&ndash;50</li>
+    <li><span class="swatch quiet"></span>quiet 0&ndash;25</li>
+    <li><span class="swatch lexonly"></span>lexical-only (no semantic answer accepted)</li>
+    <li>size = items in cluster &middot; glow = burst</li>
+  </ul>
+</header>
+<div class="banner" id="bankbanner" hidden>question bank: provisional</div>
+<main>
+  <section class="card" aria-label="radar">
+    <h2>Radar &mdash; center is ERS 100</h2>
+    <svg id="radar" viewBox="0 0 640 640" role="img" aria-label="Radar of narrative clusters by engineered reality score"></svg>
+    <p class="empty" id="radar-empty" hidden>No results yet. Run a scan, then reload.</p>
+  </section>
+  <aside class="card" aria-label="narratives by score">
+    <h2>Narratives by ERS</h2>
+    <ul class="narratives" id="list"></ul>
+  </aside>
+</main>
+<button id="scrim" type="button" aria-label="close detail panel" hidden></button>
+<div id="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" tabindex="-1" hidden></div>
+<footer>
+  <p class="disclaimer">Signals to investigate, not an attribution of intent or actor.</p>
+  <p id="generated">Generated &mdash;</p>
+</footer>
+<script id="poradar-embedded">
+/* Static demo: fixture data, no server, no network. Regenerate with the
+   build_demo script so this file stays byte-identical to radar.html's main script. */
+window.PORADAR_EMBEDDED = [
+  {
+    "item_id": "demo-0001",
+    "narrative_id": "n-grid-blackout",
+    "title": "Rolling blackouts across the Vannemark corridor were \"entirely avoidable\", insiders insist",
+    "ers": 88.4,
+    "band": "saturated",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.91,
+        "note": "nine items share 3-shingle overlap above the pinned duplicate threshold; none carry a wire dateline"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 0.22,
+        "note": "nine items, two registrable domains"
+      },
+      {
+        "signal": "burst",
+        "value": 0.94,
+        "note": "nine items in six hours against a trailing 72h mean of 0.4"
+      },
+      {
+        "signal": "attribution_absence",
+        "value": 0.86,
+        "note": "no named official, no document link, no direct quote on the record",
+        "quote": "No operator would go on the record, but insiders describe a decision taken days earlier."
+      },
+      {
+        "signal": "authority_words",
+        "value": 0.71,
+        "note": "\"insiders\", \"grid engineers familiar with\" appear without a named entity nearby",
+        "quote": "Grid engineers familiar with the corridor say the cascade was entirely avoidable."
+      },
+      {
+        "signal": "engineered_likelihood",
+        "value": 4.0,
+        "note": "semantic answer accepted at confidence 0.84"
+      }
+    ],
+    "falsifiers": [
+      "a named grid operator on the record, or the outage report itself",
+      "independent outlets describing the same outage in different phrasing",
+      "a utility filing or regulator docket number that can be pulled directly"
+    ],
+    "lexical": {
+      "emotional_load": 0.74,
+      "absolutism": 0.61,
+      "urgency": 0.68,
+      "shout": 0.33,
+      "attribution_absence": 0.86,
+      "authority_words": 0.71,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 612
+    },
+    "cluster": {
+      "uniformity": 0.91,
+      "source_diversity": 0.22,
+      "burst": 0.94,
+      "item_count": 9,
+      "unattributed_count": 9
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.08,
+          "confidence": 0.84,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.08,
+            "false": 0.92
+          },
+          "label": null
+        },
+        "manufactured_urgency": {
+          "qid": "manufactured_urgency",
+          "type": "noul",
+          "value": 0.89,
+          "confidence": 0.78,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.89,
+            "false": 0.11
+          },
+          "label": null
+        },
+        "one_sided": {
+          "qid": "one_sided",
+          "type": "noul",
+          "value": 0.93,
+          "confidence": 0.86,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.93,
+            "false": 0.07
+          },
+          "label": null
+        },
+        "genre": {
+          "qid": "genre",
+          "type": "choice",
+          "value": "reporting",
+          "confidence": 0.72,
+          "gate": "accept",
+          "probabilities": {
+            "reporting": 0.72,
+            "opinion": 0.19,
+            "press_release": 0.06,
+            "social_post": 0.03
+          },
+          "label": "reporting"
+        },
+        "technique": {
+          "qid": "technique",
+          "type": "choice",
+          "value": "appeal_to_fear",
+          "confidence": 0.66,
+          "gate": "accept",
+          "probabilities": {
+            "appeal_to_fear": 0.66,
+            "loaded_language": 0.21,
+            "doubt": 0.08,
+            "none": 0.05
+          },
+          "label": "appeal_to_fear"
+        },
+        "engineered_likelihood": {
+          "qid": "engineered_likelihood",
+          "type": "score",
+          "value": 4.0,
+          "confidence": 0.84,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "textbook engineered"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 412,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": "The cluster claims a regional blackout was deliberately allowed to happen. Nine near-identical items appeared inside six hours across two domains, none carrying a wire dateline that would explain the overlap. No named operator, filing, or outage report is cited; the authority is \"insiders\".\n\nSteel-man for the organic explanation: a single well-sourced local scoop can be rewritten quickly by aggregators that share a CMS, which produces high uniformity without coordination.\n\nCheck next: the regulator's outage docket, and whether any item names the engineer it quotes.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T14:12:04+00:00",
+    "source_domain": "example-news.test",
+    "sources": [
+      {
+        "domain": "example-news.test",
+        "title": "Rolling blackouts across the Vannemark corridor were \"entirely avoidable\", insiders insist",
+        "url": "https://example-news.test/vannemark-grid-avoidable"
+      },
+      {
+        "domain": "dailysignal.example.test",
+        "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
+        "url": "https://dailysignal.example.test/vannemark"
+      }
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": {
+      "rows": [
+        {
+          "n": 1,
+          "category": "timing anomaly",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "nine items inside six hours against a trailing 72h mean of 0.4",
+          "lower_it": "a publication pattern that matches the cluster's ordinary tempo"
+        },
+        {
+          "n": 2,
+          "category": "historical parallel",
+          "score": 3,
+          "basis": "human",
+          "receipt": "the framing mirrors the 2024 corridor outage coverage",
+          "lower_it": "a reader who can show the parallel is coincidental rather than borrowed"
+        },
+        {
+          "n": 3,
+          "category": "repetition / illusory truth",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "\"entirely avoidable\" appears in eight of nine items",
+          "lower_it": "the phrase appearing once, in the item that first reported it"
+        },
+        {
+          "n": 4,
+          "category": "loss framing",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "loss words outnumber gain words 6:1 in the lede",
+          "lower_it": "a lede that states what happened before what was lost"
+        },
+        {
+          "n": 5,
+          "category": "identity / tribal framing",
+          "score": 3,
+          "basis": "semantic",
+          "receipt": "tribal_signal p=0.61 but the answer was rejected by the gate",
+          "lower_it": "a semantic pass that clears the gate and returns a low probability"
+        },
+        {
+          "n": 6,
+          "category": "authority pressure",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "\"insiders\", \"engineers familiar with\" carry the central claim",
+          "lower_it": "one named engineer, on the record"
+        },
+        {
+          "n": 7,
+          "category": "source transparency",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "no document, filing, or dataset is linked anywhere in the cluster",
+          "lower_it": "the outage report or docket number, linked"
+        },
+        {
+          "n": 8,
+          "category": "primary documentation",
+          "score": 5,
+          "basis": "semantic",
+          "receipt": "primary_source p(true)=0.08, accepted at confidence 0.84",
+          "lower_it": "any uneditable primary record cited in the text"
+        },
+        {
+          "n": 9,
+          "category": "emotional escalation",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "VADER compound magnitude 0.74, top decile for the corpus",
+          "lower_it": "a neutral recounting of the same events"
+        },
+        {
+          "n": 10,
+          "category": "urgency injection",
+          "score": 4,
+          "basis": "semantic",
+          "receipt": "manufactured_urgency p(true)=0.89",
+          "lower_it": "a story that states the timeline without pressing for a reaction"
+        },
+        {
+          "n": 11,
+          "category": "binary framing",
+          "score": 4,
+          "basis": "semantic",
+          "receipt": "one_sided p(true)=0.93; no counter-explanation appears",
+          "lower_it": "a paragraph steel-manning the equipment-failure explanation"
+        },
+        {
+          "n": 12,
+          "category": "coordinated phrasing",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "mean pairwise 3-shingle Jaccard 0.91, no wire dateline present",
+          "lower_it": "a wire credit line that explains the shared text"
+        },
+        {
+          "n": 13,
+          "category": "amplification burst",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "burst ratio 0.94",
+          "lower_it": "the same items spread across a week"
+        },
+        {
+          "n": 14,
+          "category": "scarcity lever",
+          "score": 2,
+          "basis": "deterministic",
+          "receipt": "one \"last chance\" construction in 612 words",
+          "lower_it": "no scarcity construction at all"
+        },
+        {
+          "n": 15,
+          "category": "social proof lever",
+          "score": 3,
+          "basis": "deterministic",
+          "receipt": "\"everyone in the corridor is asking\" appears twice",
+          "lower_it": "a count of who is actually asking"
+        },
+        {
+          "n": 16,
+          "category": "reciprocity lever",
+          "score": 1,
+          "basis": "deterministic",
+          "receipt": "no evidence found in the text",
+          "lower_it": "—"
+        },
+        {
+          "n": 17,
+          "category": "consistency lever",
+          "score": 2,
+          "basis": "deterministic",
+          "receipt": "one \"as we reported\" callback",
+          "lower_it": "a story that stands on its own evidence"
+        },
+        {
+          "n": 18,
+          "category": "dissent suppression",
+          "score": 3,
+          "basis": "human",
+          "receipt": "no dissenting view is quoted; whether one was sought is unknowable from the text",
+          "lower_it": "a reader who can show a counter-view was offered and declined"
+        },
+        {
+          "n": 19,
+          "category": "correction resistance",
+          "score": 2,
+          "basis": "human",
+          "receipt": "no correction notice on any item in the cluster",
+          "lower_it": "a correction appended after the first item"
+        },
+        {
+          "n": 20,
+          "category": "prebunk / inoculation language",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "\"they will tell you this was weather\" appears in six items",
+          "lower_it": "no pre-emptive dismissal of the alternative explanation"
+        }
+      ],
+      "total": 68,
+      "reading": "51-75: strong engineered elements; anomalies too frequent to be coincidental",
+      "auto_rows": 17,
+      "human_rows": 3
+    }
+  },
+  {
+    "item_id": "demo-0002",
+    "narrative_id": "n-grid-blackout",
+    "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
+    "ers": 81.2,
+    "band": "saturated",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.91,
+        "note": "shares the cluster's copied phrasing, including the \"entirely avoidable\" construction"
+      },
+      {
+        "signal": "burst",
+        "value": 0.94,
+        "note": "published 41 minutes after the first item in the cluster"
+      },
+      {
+        "signal": "attribution_absence",
+        "value": 0.79,
+        "note": "quotes an unnamed \"grid insider\"; no document"
+      }
+    ],
+    "falsifiers": [
+      "a named grid operator on the record, or the outage report itself",
+      "a wire dateline or credit line explaining the shared phrasing"
+    ],
+    "lexical": {
+      "emotional_load": 0.66,
+      "absolutism": 0.58,
+      "urgency": 0.52,
+      "shout": 0.21,
+      "attribution_absence": 0.79,
+      "authority_words": 0.64,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 498
+    },
+    "cluster": {
+      "uniformity": 0.91,
+      "source_diversity": 0.22,
+      "burst": 0.94,
+      "item_count": 9,
+      "unattributed_count": 9
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "one_sided": {
+          "qid": "one_sided",
+          "type": "noul",
+          "value": 0.88,
+          "confidence": 0.76,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.88,
+            "false": 0.12
+          },
+          "label": null
+        },
+        "engineered_likelihood": {
+          "qid": "engineered_likelihood",
+          "type": "score",
+          "value": 3.0,
+          "confidence": 0.71,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "likely engineered"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 388,
+      "cached": true
+    },
+    "needs_review": false,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T14:12:09+00:00",
+    "source_domain": "dailysignal.example.test",
+    "sources": [
+      {
+        "domain": "dailysignal.example.test",
+        "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
+        "url": "https://dailysignal.example.test/vannemark"
+      }
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0003",
+    "narrative_id": "n-grid-blackout",
+    "title": "What the Vannemark outage tells us about who really runs the grid",
+    "ers": 76.9,
+    "band": "saturated",
+    "mode": "semantic-partial",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.91,
+        "note": "cluster-level copied phrasing"
+      },
+      {
+        "signal": "emotional_load",
+        "value": 0.81,
+        "note": "VADER compound magnitude in the top decile for the corpus"
+      },
+      {
+        "signal": "verifiability",
+        "value": 1.0,
+        "note": "semantic answer accepted: anonymous authority only"
+      }
+    ],
+    "falsifiers": [
+      "an on-record utility statement naming the cause of the outage",
+      "a second cluster item that cites a document rather than an insider"
+    ],
+    "lexical": {
+      "emotional_load": 0.81,
+      "absolutism": 0.66,
+      "urgency": 0.44,
+      "shout": 0.28,
+      "attribution_absence": 0.83,
+      "authority_words": 0.58,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 731
+    },
+    "cluster": {
+      "uniformity": 0.91,
+      "source_diversity": 0.22,
+      "burst": 0.94,
+      "item_count": 9,
+      "unattributed_count": 9
+    },
+    "semantic": {
+      "provider": "ollama:qwen3:8b",
+      "answers": {
+        "verifiability": {
+          "qid": "verifiability",
+          "type": "score",
+          "value": 1.0,
+          "confidence": 0.74,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "anonymous authority only"
+        },
+        "genre": {
+          "qid": "genre",
+          "type": "choice",
+          "value": "opinion",
+          "confidence": 0.52,
+          "gate": "uncertain",
+          "probabilities": {
+            "opinion": 0.52,
+            "reporting": 0.41,
+            "satire": 0.04,
+            "other": 0.03
+          },
+          "label": "opinion"
+        },
+        "tribal_signal": {
+          "qid": "tribal_signal",
+          "type": "noul",
+          "value": 0.61,
+          "confidence": 0.22,
+          "gate": "reject",
+          "probabilities": {
+            "true": 0.61,
+            "false": 0.39
+          },
+          "label": null
+        }
+      },
+      "egress": "localhost:11434",
+      "latency_ms": 2140,
+      "cached": false
+    },
+    "needs_review": true,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T14:12:15+00:00",
+    "source_domain": "corridorwire.example.test",
+    "sources": [
+      {
+        "domain": "corridorwire.example.test",
+        "title": "What the Vannemark outage tells us about who really runs the grid",
+        "url": "https://corridorwire.example.test/vannemark-who-runs-the-grid"
+      }
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0004",
+    "narrative_id": "n-registry-rollout",
+    "title": "Health registry rollout paused after \"overwhelming\" public objection, ministry confirms",
+    "ers": 63.5,
+    "band": "dense",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.58,
+        "note": "four items reuse the same three-sentence summary block"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 0.5,
+        "note": "four items, two registrable domains"
+      },
+      {
+        "signal": "burst",
+        "value": 0.47,
+        "note": "four items in twelve hours; trailing mean 1.1"
+      },
+      {
+        "signal": "absolutism",
+        "value": 0.55,
+        "note": "\"overwhelming\", \"undeniable\", \"nobody wanted this\" per 100 words",
+        "quote": "Nobody wanted this registry, and the objection was overwhelming."
+      },
+      {
+        "signal": "manufactured_urgency",
+        "value": 0.74,
+        "note": "semantic answer accepted at confidence 0.69"
+      }
+    ],
+    "falsifiers": [
+      "the ministry's own written statement, quoted in full",
+      "a count of objections from the consultation record rather than an adjective",
+      "coverage from an outlet outside the two domains in this cluster"
+    ],
+    "lexical": {
+      "emotional_load": 0.52,
+      "absolutism": 0.55,
+      "urgency": 0.49,
+      "shout": 0.12,
+      "attribution_absence": 0.44,
+      "authority_words": 0.5,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 540
+    },
+    "cluster": {
+      "uniformity": 0.58,
+      "source_diversity": 0.5,
+      "burst": 0.47,
+      "item_count": 4,
+      "unattributed_count": 3
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.34,
+          "confidence": 0.64,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.34,
+            "false": 0.66
+          },
+          "label": null
+        },
+        "manufactured_urgency": {
+          "qid": "manufactured_urgency",
+          "type": "noul",
+          "value": 0.74,
+          "confidence": 0.69,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.74,
+            "false": 0.26
+          },
+          "label": null
+        },
+        "nimmo_d": {
+          "qid": "nimmo_d",
+          "type": "choice",
+          "value": "dismay",
+          "confidence": 0.61,
+          "gate": "accept",
+          "probabilities": {
+            "dismay": 0.61,
+            "distort": 0.2,
+            "divide": 0.12,
+            "none": 0.07
+          },
+          "label": "dismay"
+        },
+        "emotional_engineering": {
+          "qid": "emotional_engineering",
+          "type": "score",
+          "value": 2.0,
+          "confidence": 0.73,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "clearly loaded"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 356,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": "The cluster reports that a health registry rollout was paused. The ministry is named, which raises verifiability, but the scale of objection is carried entirely by adjectives (\"overwhelming\") rather than by the consultation count, and four items share a summary block.\n\nSteel-man: ministries do issue short statements that every outlet quotes identically, which inflates uniformity without any coordination.\n\nCheck next: the consultation record, and whether the ministry statement exists in full anywhere.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T13:40:22+00:00",
+    "source_domain": "example-news.test",
+    "sources": [
+      {
+        "domain": "example-news.test",
+        "title": "Health registry rollout paused after \"overwhelming\" public objection, ministry confirms",
+        "url": "https://example-news.test/registry-paused"
+      },
+      {
+        "domain": "civicledger.example.test",
+        "title": "Ministry pauses the health registry after public objection",
+        "url": "https://civicledger.example.test/registry"
+      }
+    ],
+    "nci_reading": "51-75: strong engineered elements; anomalies too frequent to be coincidental",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0005",
+    "narrative_id": "n-registry-rollout",
+    "title": "Ministry pauses the health registry after public objection",
+    "ers": 41.8,
+    "band": "watch",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "attribution_absence",
+        "value": 0.18,
+        "note": "names the ministry, the consultation, and links the notice"
+      },
+      {
+        "signal": "uniformity",
+        "value": 0.58,
+        "note": "shares the cluster summary block"
+      },
+      {
+        "signal": "verifiability",
+        "value": 3.0,
+        "note": "semantic answer accepted: named primary source"
+      }
+    ],
+    "falsifiers": [
+      "the consultation objection count, if it contradicts the article's framing",
+      "an outlet reporting the pause with a different stated cause"
+    ],
+    "lexical": {
+      "emotional_load": 0.24,
+      "absolutism": 0.16,
+      "urgency": 0.11,
+      "shout": 0.03,
+      "attribution_absence": 0.18,
+      "authority_words": 0.2,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 388
+    },
+    "cluster": {
+      "uniformity": 0.58,
+      "source_diversity": 0.5,
+      "burst": 0.47,
+      "item_count": 4,
+      "unattributed_count": 3
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.86,
+          "confidence": 0.72,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.86,
+            "false": 0.14
+          },
+          "label": null
+        },
+        "verifiability": {
+          "qid": "verifiability",
+          "type": "score",
+          "value": 3.0,
+          "confidence": 0.77,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "named primary source"
+        },
+        "genre": {
+          "qid": "genre",
+          "type": "choice",
+          "value": "reporting",
+          "confidence": 0.81,
+          "gate": "accept",
+          "probabilities": {
+            "reporting": 0.81,
+            "press_release": 0.11,
+            "opinion": 0.08
+          },
+          "label": "reporting"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 341,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T13:41:02+00:00",
+    "source_domain": "civicledger.example.test",
+    "sources": [
+      {
+        "domain": "civicledger.example.test",
+        "title": "Ministry pauses the health registry after public objection",
+        "url": "https://civicledger.example.test/registry"
+      }
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0006",
+    "narrative_id": "n-convoy-checkpoint",
+    "title": "BREAKING: convoy turned back at the Kelstone checkpoint — act before they close it for good",
+    "ers": 46.5,
+    "band": "watch",
+    "mode": "lexical-only",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "urgency",
+        "value": 0.88,
+        "note": "\"breaking\", \"act now\", \"before it is too late\" at 2.4 per 100 words",
+        "quote": "BREAKING — act now, before they close Kelstone for good!!"
+      },
+      {
+        "signal": "shout",
+        "value": 0.62,
+        "note": "caps-word ratio 0.14, exclamation density 0.9 per sentence"
+      },
+      {
+        "signal": "attribution_absence",
+        "value": 0.94,
+        "note": "no named source, no document, no quote"
+      },
+      {
+        "signal": "mode",
+        "value": "lexical-only",
+        "note": "no semantic answer cleared the confidence gate; band capped at watch"
+      }
+    ],
+    "falsifiers": [
+      "any named witness or official at the checkpoint",
+      "a photograph or record with a verifiable timestamp and location",
+      "a semantic pass that clears the gate and can raise or lower this score"
+    ],
+    "lexical": {
+      "emotional_load": 0.79,
+      "absolutism": 0.71,
+      "urgency": 0.88,
+      "shout": 0.62,
+      "attribution_absence": 0.94,
+      "authority_words": 0.41,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 143
+    },
+    "cluster": {
+      "uniformity": 0.34,
+      "source_diversity": 1.0,
+      "burst": 0.72,
+      "item_count": 2,
+      "unattributed_count": 2
+    },
+    "semantic": null,
+    "needs_review": true,
+    "brief": "A short, high-urgency post about a convoy turned back at a checkpoint. Every deterministic stylistic signal is elevated and nothing in the text can be checked: no name, no document, no timestamped record.\n\nSteel-man: eyewitness posts written in the moment legitimately read like this, and urgency is not evidence of engineering.\n\nBecause no semantic answer cleared the gate, this score is lexical-only and the band is capped at watch. Check next: whether any account with a location history posted the same scene.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T15:02:51+00:00",
+    "source_domain": "shortpost.example.test",
+    "sources": [
+      {
+        "domain": "shortpost.example.test",
+        "title": "BREAKING: convoy turned back at the Kelstone checkpoint",
+        "url": "https://shortpost.example.test/p/88213"
+      }
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0007",
+    "narrative_id": "n-recall-petition",
+    "title": "Everyone knows the recall petition was rigged, say organizers of the recall petition",
+    "ers": 31.7,
+    "band": "watch",
+    "mode": "lexical-only",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "absolutism",
+        "value": 0.68,
+        "note": "\"everyone knows\", \"nobody disputes\", \"proven\" at 1.9 per 100 words",
+        "quote": "Everyone knows the petition was rigged; nobody disputes it at this point."
+      },
+      {
+        "signal": "authority_words",
+        "value": 0.46,
+        "note": "\"organizers say\" is the only sourcing for the central claim"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 1.0,
+        "note": "single item, single domain; no cluster to compare against"
+      },
+      {
+        "signal": "mode",
+        "value": "lexical-only",
+        "note": "Ollama unreachable and no key present; heuristic provider never accepts"
+      }
+    ],
+    "falsifiers": [
+      "the petition signature audit, or any count from the returning officer",
+      "a quote from someone who is not an organizer of the petition",
+      "a semantic pass that clears the gate"
+    ],
+    "lexical": {
+      "emotional_load": 0.41,
+      "absolutism": 0.68,
+      "urgency": 0.22,
+      "shout": 0.09,
+      "attribution_absence": 0.57,
+      "authority_words": 0.46,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 402
+    },
+    "cluster": {
+      "uniformity": 0.0,
+      "source_diversity": 1.0,
+      "burst": 0.18,
+      "item_count": 1,
+      "unattributed_count": 1
+    },
+    "semantic": null,
+    "needs_review": true,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T12:19:07+00:00",
+    "source_domain": "countyclarion.example.test",
+    "sources": [
+      {
+        "domain": "countyclarion.example.test",
+        "title": "Everyone knows the recall petition was rigged, say organizers",
+        "url": "https://countyclarion.example.test/recall-rigged"
+      }
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0008",
+    "narrative_id": "n-harbor-dredging",
+    "title": "Harbor dredging permit granted; the sediment survey is attached to the filing",
+    "ers": 14.3,
+    "band": "quiet",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "attribution_absence",
+        "value": 0.08,
+        "note": "names the port authority, the permit number, and links the sediment survey",
+        "quote": "Port authority director Imelda Rask said permit 4471 was granted with the sediment survey attached."
+      },
+      {
+        "signal": "uniformity",
+        "value": 0.11,
+        "note": "three items in the cluster share only the permit number"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 1.0,
+        "note": "three items, three registrable domains"
+      },
+      {
+        "signal": "verifiability",
+        "value": 4.0,
+        "note": "semantic answer accepted: primary source plus document link"
+      }
+    ],
+    "falsifiers": [
+      "the attached survey failing to match the permit it is filed under",
+      "a second outlet reporting a different permit number for the same dredging",
+      "any indication that the port authority quote was not on the record"
+    ],
+    "lexical": {
+      "emotional_load": 0.12,
+      "absolutism": 0.04,
+      "urgency": 0.03,
+      "shout": 0.01,
+      "attribution_absence": 0.08,
+      "authority_words": 0.06,
+      "attributed_syndication": true,
+      "syndication_source": "example-wire.test",
+      "word_count": 476
+    },
+    "cluster": {
+      "uniformity": 0.11,
+      "source_diversity": 1.0,
+      "burst": 0.05,
+      "item_count": 3,
+      "unattributed_count": 1
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.95,
+          "confidence": 0.9,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.95,
+            "false": 0.05
+          },
+          "label": null
+        },
+        "one_sided": {
+          "qid": "one_sided",
+          "type": "noul",
+          "value": 0.12,
+          "confidence": 0.76,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.12,
+            "false": 0.88
+          },
+          "label": null
+        },
+        "verifiability": {
+          "qid": "verifiability",
+          "type": "score",
+          "value": 4.0,
+          "confidence": 0.88,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "primary source plus document/data link"
+        },
+        "engineered_likelihood": {
+          "qid": "engineered_likelihood",
+          "type": "score",
+          "value": 0.0,
+          "confidence": 0.85,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "organic"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 298,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": "A permit story with the underlying document attached. The named authority, the permit number, and the linked survey put every central claim within reach of a reader, and the three items in the cluster differ in phrasing. One is wire-attributed and is excluded from the uniformity term.\n\nNothing here needs investigating beyond reading the filing.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T11:05:44+00:00",
+    "source_domain": "portrecord.example.test",
+    "sources": [
+      {
+        "domain": "portrecord.example.test",
+        "title": "Harbor dredging permit granted; the sediment survey is attached to the filing",
+        "url": "https://portrecord.example.test/permit-4471"
+      },
+      {
+        "domain": "example-wire.test",
+        "title": "Port authority grants dredging permit",
+        "url": "https://example-wire.test/dredging-permit"
+      },
+      {
+        "domain": "harbourjournal.example.test",
+        "title": "Dredging permit 4471 clears review",
+        "url": "https://harbourjournal.example.test/4471"
+      }
+    ],
+    "nci_reading": "0-25: low probability of an engineered operation; likely organic",
+    "worksheet": null
+  }
+];
+window.PORADAR_BANK = "provisional";
+window.PORADAR_GENERATED = "2026-09-21T15:10:00+00:00";
+</script>
+<script id="poradar-main">
+"use strict";
+(function () {
+  var DISCLAIMER = "Signals to investigate, not an attribution of intent or actor.";
+  var BANDS = ["quiet", "watch", "dense", "saturated"];
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  var state = { groups: [], selected: null, bank: "provisional", generated: null };
+
+  /* ---------- small helpers ---------- */
+  function num(v, dflt) { var n = Number(v); return isFinite(n) ? n : (dflt || 0); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function pct(v) { return Math.round(clamp(num(v), 0, 1) * 100) + "%"; }
+  function fixed(v, d) { return num(v).toFixed(d === undefined ? 2 : d); }
+  function bandOf(r) {
+    var b = String((r && r.band) || "").replace(/^opinion:\s*/, "");
+    return BANDS.indexOf(b) >= 0 ? b : "quiet";
+  }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) { n.className = cls; }
+    if (text !== undefined && text !== null) { n.textContent = String(text); }
+    return n;
+  }
+  function svg(tag, attrs) {
+    var n = document.createElementNS(SVG_NS, tag);
+    for (var k in attrs) { if (Object.prototype.hasOwnProperty.call(attrs, k)) { n.setAttribute(k, attrs[k]); } }
+    return n;
+  }
+  function truncate(value, max) {
+    var s = String(value === undefined || value === null ? "" : value).replace(/\s+/g, " ").trim();
+    return s.length > max ? s.slice(0, max - 1).replace(/[\s,;:.-]+$/, "") + "…" : s;
+  }
+
+  /* ---------- BLIP LABEL (narrative-first; an outlet is never a label) ----------
+     Only the title and the top falsifier may appear next to a blip. Source
+     domains live in the detail panel's source list and nowhere else. */
+  function blipLabel(group) {
+    var top = (group && group.top) || {};
+    var title = truncate(top.title || (group && group.id) || "untitled narrative", 40);
+    var falsifiers = Array.isArray(top.falsifiers) ? top.falsifiers : [];
+    var falsifier = falsifiers.length ? truncate(falsifiers[0], 44) : "no falsifier recorded";
+    return { title: title, falsifier: "↺ " + falsifier };
+  }
+  /* ---------- END BLIP LABEL ---------- */
+
+  /* ---------- shaping the data ---------- */
+  function groupNarratives(results) {
+    var by = {}, order = [], i, r, key, g;
+    for (i = 0; i < results.length; i++) {
+      r = results[i] || {};
+      key = String(r.narrative_id || r.item_id || ("n" + i));
+      if (!by[key]) { by[key] = { id: key, results: [], top: r }; order.push(key); }
+      g = by[key];
+      g.results.push(r);
+      if (num(r.ers) > num(g.top.ers)) { g.top = r; }
+    }
+    return order.map(function (k) {
+      var grp = by[k];
+      grp.ers = num(grp.top.ers);
+      grp.band = bandOf(grp.top);
+      grp.mode = String(grp.top.mode || "lexical-only");
+      grp.cluster = grp.top.cluster || {};
+      return grp;
+    }).sort(function (a, b) { return b.ers - a.ers; });
+  }
+
+  function angleFor(id) {
+    var h = 2166136261, i;
+    var s = String(id);
+    for (i = 0; i < s.length; i++) {
+      h = h ^ s.charCodeAt(i);
+      h = (h * 16777619) >>> 0;
+    }
+    return (h % 3600) / 3600 * Math.PI * 2;
+  }
+  function sourcesOf(group) {
+    var out = [], seen = {};
+    (group.results || []).forEach(function (r) {
+      var list = Array.isArray(r.sources) ? r.sources : (r.source_domain ? [r.source_domain] : []);
+      list.forEach(function (s) {
+        var entry = typeof s === "string" ? { domain: s } : (s || {});
+        var domain = String(entry.domain || entry.source_domain || "unknown");
+        var key = domain + "|" + (entry.title || r.title || "");
+        if (seen[key]) { return; }
+        seen[key] = true;
+        out.push({ domain: domain, title: entry.title || r.title || "", url: entry.url || null });
+      });
+    });
+    return out;
+  }
+
+  /* ---------- the radar ---------- */
+  /* Two layouts, one algorithm: wide puts labels beside the blip and pointing
+     outward; narrow stacks them underneath. Both resolve overlap vertically. */
+  function layout() {
+    var w = window.innerWidth || 1024;
+    if (w < 760) {
+      return { W: 440, H: 424, CX: 220, CY: 178, RMAX: 140, fTitle: 12, fFals: 11, side: false };
+    }
+    return { W: 900, H: 640, CX: 450, CY: 300, RMAX: 244, fTitle: 12, fFals: 11, side: true };
+  }
+
+  function radiusFor(ers, L) { return L.RMAX * (1 - clamp(num(ers), 0, 100) / 100); }
+  function sizeFor(count) { return 5 + Math.min(13, Math.sqrt(Math.max(1, num(count, 1))) * 3.1); }
+
+  function overlaps(a, b) {
+    return !(a.x1 < b.x0 - 5 || a.x0 > b.x1 + 5 || a.y1 < b.y0 - 3 || a.y0 > b.y1 + 3);
+  }
+  function nudge(box, placed, step) {
+    var steps = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6], tries = [], i;
+    for (i = 0; i < steps.length; i++) { tries.push(steps[i] * step); }
+    for (i = 0; i < tries.length; i++) {
+      var moved = { x0: box.x0, x1: box.x1, y0: box.y0 + tries[i], y1: box.y1 + tries[i] };
+      var clear = true;
+      for (var j = 0; j < placed.length; j++) {
+        if (overlaps(moved, placed[j])) { clear = false; break; }
+      }
+      if (clear) { return tries[i]; }
+    }
+    return tries[tries.length - 1];
+  }
+  function textWidth(s, size) { return String(s).length * size * 0.54; }
+
+  function drawGrid(root, L) {
+    var defs = svg("defs");
+    var hatch = svg("pattern", {
+      id: "hatch", width: 6, height: 6,
+      patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)"
+    });
+    hatch.appendChild(svg("rect", { width: 6, height: 6, fill: "var(--panel-bg)" }));
+    hatch.appendChild(svg("rect", { width: 2.4, height: 6, fill: "var(--ink-faint)" }));
+    defs.appendChild(hatch);
+    var grad = svg("linearGradient", { id: "sweepgrad", x1: "0", y1: "0", x2: "1", y2: "0" });
+    grad.appendChild(svg("stop", { offset: "0", "stop-color": "var(--sweep)", "stop-opacity": "0.30" }));
+    grad.appendChild(svg("stop", { offset: "1", "stop-color": "var(--sweep)", "stop-opacity": "0" }));
+    defs.appendChild(grad);
+    root.appendChild(defs);
+
+    var i, a;
+    for (i = 0; i < 12; i++) {
+      a = i / 12 * Math.PI * 2;
+      root.appendChild(svg("line", {
+        "class": "spoke", x1: L.CX, y1: L.CY,
+        x2: L.CX + Math.cos(a) * L.RMAX, y2: L.CY + Math.sin(a) * L.RMAX
+      }));
+    }
+    [0, 25, 50, 75].forEach(function (ers, idx) {
+      root.appendChild(svg("circle", {
+        "class": idx % 2 ? "ring alt" : "ring", cx: L.CX, cy: L.CY, r: radiusFor(ers, L)
+      }));
+    });
+    root.appendChild(svg("circle", { "class": "ring", cx: L.CX, cy: L.CY, r: 3 }));
+
+    var sweep = svg("g", { "class": "sweep" });
+    sweep.style.transformOrigin = L.CX + "px " + L.CY + "px";
+    sweep.appendChild(svg("path", {
+      d: "M " + L.CX + " " + L.CY + " L " + (L.CX + L.RMAX) + " " + L.CY +
+         " A " + L.RMAX + " " + L.RMAX + " 0 0 0 " +
+         (L.CX + L.RMAX * Math.cos(-0.65)) + " " + (L.CY + L.RMAX * Math.sin(-0.65)) + " Z",
+      fill: "url(#sweepgrad)"
+    }));
+    sweep.appendChild(svg("line", {
+      x1: L.CX, y1: L.CY, x2: L.CX + L.RMAX, y2: L.CY,
+      stroke: "var(--sweep)", "stroke-opacity": "0.4", "stroke-width": "1"
+    }));
+    root.appendChild(sweep);
+
+    [["quiet", 12.5], ["watch", 37.5], ["dense", 62.5], ["saturated", 87.5]].forEach(function (pair) {
+      var t = svg("text", {
+        "class": "ringlabel", x: L.CX, y: L.CY - radiusFor(pair[1], L) + 4, "text-anchor": "middle"
+      });
+      t.textContent = pair[0];
+      root.appendChild(t);
+    });
+    var c0 = svg("text", {
+      "class": "centerlabel", x: L.CX, y: L.CY + L.RMAX + 15, "text-anchor": "middle"
+    });
+    c0.textContent = "ERS 0";
+    root.appendChild(c0);
+  }
+
+  function drawRadar(groups) {
+    var root = document.getElementById("radar");
+    var L = layout();
+    while (root.firstChild) { root.removeChild(root.firstChild); }
+    root.setAttribute("viewBox", "0 0 " + L.W + " " + L.H);
+    document.getElementById("radar-empty").hidden = groups.length > 0;
+    drawGrid(root, L);
+
+    var placed = [];
+    groups.forEach(function (group) {
+      var ang = angleFor(group.id);
+      var rad = radiusFor(group.ers, L);
+      var x = L.CX + Math.cos(ang) * rad;
+      var y = L.CY + Math.sin(ang) * rad;
+      var size = sizeFor(group.cluster.item_count);
+      var burst = clamp(num(group.cluster.burst), 0, 1);
+      var lexOnly = group.mode === "lexical-only";
+      var color = "var(--band-" + group.band + ")";
+      var label = blipLabel(group);
+
+      var g = svg("g", {
+        "class": "blip " + group.band + (lexOnly ? " lexonly" : ""),
+        tabindex: "0", role: "button",
+        "aria-label": label.title + ", band " + group.band + ", ERS " + Math.round(group.ers)
+      });
+      g.dataset.narrative = group.id;
+      g.appendChild(svg("circle", {
+        "class": "halo", cx: x, cy: y, r: size * (1.8 + burst * 1.4),
+        fill: color, "fill-opacity": (0.07 + burst * 0.26).toFixed(3)
+      }));
+      g.appendChild(svg("circle", {
+        "class": "dot", cx: x, cy: y, r: size,
+        fill: lexOnly ? "url(#hatch)" : color,
+        "fill-opacity": lexOnly ? "0.9" : (0.55 + burst * 0.45).toFixed(3)
+      }));
+
+      var w = Math.max(textWidth(label.title, L.fTitle), textWidth(label.falsifier, L.fFals));
+      var anchor, lx, ly, box;
+      if (L.side) {
+        var right = x >= L.CX;
+        if (right && x + size + 10 + w > L.W - 6) { right = false; }
+        if (!right && x - size - 10 - w < 6) { right = true; }
+        anchor = right ? "start" : "end";
+        lx = right ? x + size + 9 : x - size - 9;
+        box = right ? { x0: lx, x1: lx + w } : { x0: lx - w, x1: lx };
+        ly = y - 2;
+      } else {
+        anchor = "middle";
+        lx = clamp(x, w / 2 + 5, L.W - w / 2 - 5);
+        box = { x0: lx - w / 2, x1: lx + w / 2 };
+        ly = y + size + 14;
+      }
+      ly = clamp(ly, L.fTitle + 4, L.H - L.fFals - 8);
+      box.y0 = ly - L.fTitle;
+      box.y1 = ly + L.fFals + 5;
+      var dy = nudge(box, placed, L.fTitle + L.fFals + 7);
+      ly += dy;
+      box.y0 += dy;
+      box.y1 += dy;
+      placed.push(box);
+
+      if (Math.abs(dy) > 4 || !L.side) {
+        g.appendChild(svg("line", {
+          "class": "leader", x1: x, y1: y, x2: lx, y2: ly - L.fTitle * 0.35
+        }));
+      }
+      var text = svg("text", {
+        "class": "blabel", x: lx, y: ly, "text-anchor": anchor, "font-size": L.fTitle
+      });
+      var l1 = svg("tspan", { x: lx });
+      l1.textContent = label.title;
+      var l2 = svg("tspan", { "class": "fals", x: lx, dy: L.fFals + 2, "font-size": L.fFals });
+      l2.textContent = label.falsifier;
+      text.appendChild(l1);
+      text.appendChild(l2);
+      g.appendChild(text);
+
+      g.addEventListener("click", function () { select(group.id); });
+      g.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(group.id); }
+      });
+      root.appendChild(g);
+    });
+  }
+
+  /* ---------- the list view ---------- */
+  function drawList(groups) {
+    var list = document.getElementById("list");
+    while (list.firstChild) { list.removeChild(list.firstChild); }
+    if (!groups.length) {
+      var li = el("li");
+      li.appendChild(el("p", "empty", "No narratives yet."));
+      list.appendChild(li);
+      return;
+    }
+    groups.forEach(function (group) {
+      var label = blipLabel(group);
+      var li = el("li");
+      var btn = el("button", "nrow " + group.band);
+      btn.type = "button";
+      btn.dataset.narrative = group.id;
+      var top = el("div", "top");
+      top.appendChild(el("span", "ers", Math.round(group.ers)));
+      top.appendChild(el("span", "chip " + group.band, group.band));
+      top.appendChild(el("span", "chip mode-" + group.mode, group.mode));
+      btn.appendChild(top);
+      btn.appendChild(el("div", "ttl", label.title));
+      btn.appendChild(el("div", "fals", label.falsifier));
+      btn.appendChild(el("div", "fals", (group.cluster.item_count || 1) + " item(s) · burst " + fixed(group.cluster.burst, 2)));
+      btn.addEventListener("click", function () { select(group.id); });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
+
+  /* ---------- the detail panel (the only place domains appear) ---------- */
+  function section(parent, heading) {
+    parent.appendChild(el("h3", null, heading));
+    return parent;
+  }
+  function kvList(pairs) {
+    var dl = el("dl", "kv");
+    pairs.forEach(function (p) {
+      dl.appendChild(el("dt", null, p[0]));
+      dl.appendChild(el("dd", null, p[1]));
+    });
+    return dl;
+  }
+
+  function drawWorksheet(ws) {
+    var box = el("details", "worksheet");
+    var sum = el("summary", null,
+      num(ws.total) + " / 100 \u00b7 " + (ws.rows || []).length + " categories \u00b7 " +
+      num(ws.auto_rows) + " scored from the text, " + num(ws.human_rows) + " need a human");
+    box.appendChild(sum);
+    if (ws.reading) { box.appendChild(el("p", "reading", ws.reading)); }
+    (ws.rows || []).forEach(function (row) {
+      var r = el("div", "wrow");
+      var hd = el("div", "hd");
+      hd.appendChild(el("span", "cat", num(row.n) + ". " + (row.category || "")));
+      var pips = el("span", "pips");
+      pips.setAttribute("aria-label", num(row.score) + " of 5");
+      for (var i = 1; i <= 5; i++) { pips.appendChild(el("i", i <= num(row.score) ? "on" : null)); }
+      hd.appendChild(pips);
+      hd.appendChild(el("span", "chip", row.basis || "?"));
+      r.appendChild(hd);
+      if (row.receipt) { r.appendChild(el("span", "receipt", row.receipt)); }
+      if (row.lower_it) { r.appendChild(el("span", "receipt", "\u21ba " + row.lower_it)); }
+      box.appendChild(r);
+    });
+    return box;
+  }
+
+  function drawPanel(group) {
+    var panel = document.getElementById("panel");
+    while (panel.firstChild) { panel.removeChild(panel.firstChild); }
+    var top = group.top || {};
+
+    var close = el("button", "close", "×");
+    close.type = "button";
+    close.setAttribute("aria-label", "close");
+    close.addEventListener("click", function () { select(null); });
+    panel.appendChild(close);
+
+    var h2 = el("h2", null, top.title || group.id);
+    h2.id = "panel-title";
+    panel.appendChild(h2);
+
+    var score = el("div", "score");
+    score.appendChild(el("span", "big", Math.round(num(top.ers))));
+    score.appendChild(el("span", "chip " + bandOf(top), top.band || bandOf(top)));
+    score.appendChild(el("span", "chip mode-" + (top.mode || ""), top.mode || "unknown"));
+    if (top.needs_review) { score.appendChild(el("span", "chip", "needs review")); }
+    panel.appendChild(score);
+    var meter = el("div", "meter");
+    var fill = el("span");
+    fill.style.width = clamp(num(top.ers), 0, 100) + "%";
+    fill.style.background = "var(--band-" + bandOf(top) + ")";
+    meter.appendChild(fill);
+    panel.appendChild(meter);
+    if (top.nci_reading) { panel.appendChild(el("p", "reading", top.nci_reading)); }
+    panel.appendChild(el("p", "fals", "narrative " + group.id + " · " + group.results.length + " scored item(s)"));
+
+    section(panel, "Evidence");
+    var ev = el("ul", "plain");
+    (top.evidence || []).forEach(function (e) {
+      var li = el("li", "ev");
+      var head = el("div");
+      head.appendChild(el("span", null, e.signal + " "));
+      head.appendChild(el("b", null, typeof e.value === "number" ? fixed(e.value, 2) : String(e.value)));
+      li.appendChild(head);
+      li.appendChild(el("span", "note", e.note || ""));
+      if (e.quote) { li.appendChild(el("blockquote", "quote", "\u201c" + e.quote + "\u201d")); }
+      ev.appendChild(li);
+    });
+    if (!ev.childNodes.length) { ev.appendChild(el("li", "note", "no evidence recorded")); }
+    panel.appendChild(ev);
+
+    section(panel, "What would falsify this");
+    var fl = el("ul", "plain falsifiers");
+    (top.falsifiers || []).forEach(function (f) { fl.appendChild(el("li", null, f)); });
+    if (!fl.childNodes.length) { fl.appendChild(el("li", null, "none recorded")); }
+    panel.appendChild(fl);
+
+    var sem = top.semantic;
+    if (sem && sem.answers && Object.keys(sem.answers).length) {
+      section(panel, "Semantic answers · " + (sem.provider || "provider"));
+      var answers = el("ul", "plain");
+      Object.keys(sem.answers).forEach(function (qid) {
+        var a = sem.answers[qid] || {};
+        var li = el("li", "ans");
+        var hd = el("div", "hd");
+        hd.appendChild(el("span", "qid", qid));
+        hd.appendChild(el("span", "chip", a.gate || "?"));
+        li.appendChild(hd);
+        var value = a.label !== undefined && a.label !== null && a.label !== "" ? a.label : a.value;
+        li.appendChild(el("div", "note", (a.type || "") + " · " + (typeof value === "number" ? fixed(value, 2) : String(value)) +
+          " · confidence " + pct(a.confidence)));
+        var probs = a.probabilities || {};
+        Object.keys(probs).forEach(function (k) {
+          var row = el("div", "prob");
+          var barwrap = el("div");
+          barwrap.appendChild(el("span", null, k));
+          var bar = el("div", "bar");
+          var b = el("span");
+          b.style.width = pct(probs[k]);
+          bar.appendChild(b);
+          barwrap.appendChild(bar);
+          row.appendChild(barwrap);
+          row.appendChild(el("div", "val", pct(probs[k])));
+          li.appendChild(row);
+        });
+        answers.appendChild(li);
+      });
+      panel.appendChild(answers);
+      panel.appendChild(el("p", "note", "egress " + (sem.egress || "none") + " · " + num(sem.latency_ms) + " ms" + (sem.cached ? " · cached" : "")));
+    } else {
+      section(panel, "Semantic answers");
+      panel.appendChild(el("p", "note", "none accepted — this result is lexical-only, so the band is capped at watch."));
+    }
+
+    section(panel, "Lexical signals");
+    var lex = top.lexical || {};
+    panel.appendChild(kvList([
+      ["emotional_load", fixed(lex.emotional_load)],
+      ["absolutism", fixed(lex.absolutism)],
+      ["urgency", fixed(lex.urgency)],
+      ["shout", fixed(lex.shout)],
+      ["attribution_absence", fixed(lex.attribution_absence)],
+      ["authority_words", fixed(lex.authority_words)],
+      ["attributed syndication", lex.attributed_syndication ? "yes" : "no"],
+      ["word count", String(num(lex.word_count))]
+    ]));
+
+    section(panel, "Cluster signals");
+    var cl = top.cluster || {};
+    panel.appendChild(kvList([
+      ["uniformity", fixed(cl.uniformity)],
+      ["source_diversity", fixed(cl.source_diversity)],
+      ["burst", fixed(cl.burst)],
+      ["items", String(num(cl.item_count, 1))],
+      ["unattributed items", String(num(cl.unattributed_count))]
+    ]));
+
+    if (top.worksheet && Array.isArray(top.worksheet.rows) && top.worksheet.rows.length) {
+      section(panel, "Worksheet");
+      panel.appendChild(drawWorksheet(top.worksheet));
+    }
+
+    if (top.brief) {
+      section(panel, "Forensic brief");
+      panel.appendChild(el("div", "brief", top.brief));
+    }
+
+    section(panel, "Sources in this cluster");
+    var srcs = sourcesOf(group);
+    var sl = el("ul", "plain sources");
+    srcs.forEach(function (s) {
+      var li = el("li");
+      li.appendChild(el("div", null, s.title || "(untitled)"));
+      var code = el("code", null, s.domain);
+      li.appendChild(code);
+      sl.appendChild(li);
+    });
+    if (!sl.childNodes.length) { sl.appendChild(el("li", null, "no source list recorded")); }
+    panel.appendChild(sl);
+
+    panel.appendChild(el("p", "note", top.disclaimer || DISCLAIMER));
+  }
+
+  /* ---------- selection ---------- */
+  function markSelection() {
+    Array.prototype.forEach.call(document.querySelectorAll(".blip, .nrow"), function (n) {
+      n.classList.toggle("sel", n.dataset.narrative === state.selected);
+    });
+  }
+
+  function select(narrativeId) {
+    state.selected = narrativeId;
+    var panel = document.getElementById("panel");
+    var scrim = document.getElementById("scrim");
+    var group = null, i;
+    for (i = 0; i < state.groups.length; i++) {
+      if (state.groups[i].id === narrativeId) { group = state.groups[i]; }
+    }
+    markSelection();
+    if (!group) {
+      panel.hidden = true;
+      scrim.hidden = true;
+      return;
+    }
+    drawPanel(group);
+    panel.hidden = false;
+    scrim.hidden = false;
+    panel.focus();
+  }
+
+  /* ---------- render + load ---------- */
+  function render(payload) {
+    var results = Array.isArray(payload.results) ? payload.results : [];
+    state.groups = groupNarratives(results);
+    state.bank = payload.bank || bankFrom(results);
+    state.generated = payload.generated || new Date().toISOString();
+    document.getElementById("bankbanner").hidden = state.bank !== "provisional";
+    drawRadar(state.groups);
+    drawList(state.groups);
+    var when = new Date(state.generated);
+    document.getElementById("generated").textContent = "Generated " +
+      (isNaN(when.getTime()) ? String(state.generated) : when.toLocaleString());
+  }
+
+  function bankFrom(results) {
+    var reconciled = results.length > 0;
+    results.forEach(function (r) { if ((r.bank || "provisional") !== "reconciled") { reconciled = false; } });
+    return reconciled ? "reconciled" : "provisional";
+  }
+
+  function boot() {
+    document.getElementById("scrim").addEventListener("click", function () { select(null); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { select(null); } });
+    var resizeTimer = null;
+    var wasNarrow = layout().side;
+    window.addEventListener("resize", function () {
+      if (layout().side === wasNarrow && state.groups.length === 0) { return; }
+      wasNarrow = layout().side;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        drawRadar(state.groups);
+        markSelection();
+      }, 150);
+    });
+
+    if (Array.isArray(window.PORADAR_EMBEDDED)) {
+      render({
+        results: window.PORADAR_EMBEDDED,
+        disclaimer: DISCLAIMER,
+        bank: window.PORADAR_BANK || bankFrom(window.PORADAR_EMBEDDED),
+        generated: window.PORADAR_GENERATED || new Date().toISOString()
+      });
+      return;
+    }
+    fetch("/api/results?limit=200", { headers: { accept: "application/json" } })
+      .then(function (r) { return r.json(); })
+      .then(render)
+      .catch(function () {
+        document.getElementById("radar-empty").hidden = false;
+        document.getElementById("radar-empty").textContent = "Could not reach /api/results.";
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

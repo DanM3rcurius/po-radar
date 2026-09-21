@@ -1,0 +1,1038 @@
+[
+  {
+    "item_id": "demo-0001",
+    "narrative_id": "n-grid-blackout",
+    "title": "Rolling blackouts across the Vannemark corridor were \"entirely avoidable\", insiders insist",
+    "ers": 88.4,
+    "band": "saturated",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.91,
+        "note": "nine items share 3-shingle overlap above the pinned duplicate threshold; none carry a wire dateline"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 0.22,
+        "note": "nine items, two registrable domains"
+      },
+      {
+        "signal": "burst",
+        "value": 0.94,
+        "note": "nine items in six hours against a trailing 72h mean of 0.4"
+      },
+      {
+        "signal": "attribution_absence",
+        "value": 0.86,
+        "note": "no named official, no document link, no direct quote on the record",
+        "quote": "No operator would go on the record, but insiders describe a decision taken days earlier."
+      },
+      {
+        "signal": "authority_words",
+        "value": 0.71,
+        "note": "\"insiders\", \"grid engineers familiar with\" appear without a named entity nearby",
+        "quote": "Grid engineers familiar with the corridor say the cascade was entirely avoidable."
+      },
+      {
+        "signal": "engineered_likelihood",
+        "value": 4.0,
+        "note": "semantic answer accepted at confidence 0.84"
+      }
+    ],
+    "falsifiers": [
+      "a named grid operator on the record, or the outage report itself",
+      "independent outlets describing the same outage in different phrasing",
+      "a utility filing or regulator docket number that can be pulled directly"
+    ],
+    "lexical": {
+      "emotional_load": 0.74,
+      "absolutism": 0.61,
+      "urgency": 0.68,
+      "shout": 0.33,
+      "attribution_absence": 0.86,
+      "authority_words": 0.71,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 612
+    },
+    "cluster": {
+      "uniformity": 0.91,
+      "source_diversity": 0.22,
+      "burst": 0.94,
+      "item_count": 9,
+      "unattributed_count": 9
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.08,
+          "confidence": 0.84,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.08,
+            "false": 0.92
+          },
+          "label": null
+        },
+        "manufactured_urgency": {
+          "qid": "manufactured_urgency",
+          "type": "noul",
+          "value": 0.89,
+          "confidence": 0.78,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.89,
+            "false": 0.11
+          },
+          "label": null
+        },
+        "one_sided": {
+          "qid": "one_sided",
+          "type": "noul",
+          "value": 0.93,
+          "confidence": 0.86,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.93,
+            "false": 0.07
+          },
+          "label": null
+        },
+        "genre": {
+          "qid": "genre",
+          "type": "choice",
+          "value": "reporting",
+          "confidence": 0.72,
+          "gate": "accept",
+          "probabilities": {
+            "reporting": 0.72,
+            "opinion": 0.19,
+            "press_release": 0.06,
+            "social_post": 0.03
+          },
+          "label": "reporting"
+        },
+        "technique": {
+          "qid": "technique",
+          "type": "choice",
+          "value": "appeal_to_fear",
+          "confidence": 0.66,
+          "gate": "accept",
+          "probabilities": {
+            "appeal_to_fear": 0.66,
+            "loaded_language": 0.21,
+            "doubt": 0.08,
+            "none": 0.05
+          },
+          "label": "appeal_to_fear"
+        },
+        "engineered_likelihood": {
+          "qid": "engineered_likelihood",
+          "type": "score",
+          "value": 4.0,
+          "confidence": 0.84,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "textbook engineered"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 412,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": "The cluster claims a regional blackout was deliberately allowed to happen. Nine near-identical items appeared inside six hours across two domains, none carrying a wire dateline that would explain the overlap. No named operator, filing, or outage report is cited; the authority is \"insiders\".\n\nSteel-man for the organic explanation: a single well-sourced local scoop can be rewritten quickly by aggregators that share a CMS, which produces high uniformity without coordination.\n\nCheck next: the regulator's outage docket, and whether any item names the engineer it quotes.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T14:12:04+00:00",
+    "source_domain": "example-news.test",
+    "sources": [
+      {
+        "domain": "example-news.test",
+        "title": "Rolling blackouts across the Vannemark corridor were \"entirely avoidable\", insiders insist",
+        "url": "https://example-news.test/vannemark-grid-avoidable"
+      },
+      {
+        "domain": "dailysignal.example.test",
+        "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
+        "url": "https://dailysignal.example.test/vannemark"
+      }
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": {
+      "rows": [
+        {
+          "n": 1,
+          "category": "timing anomaly",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "nine items inside six hours against a trailing 72h mean of 0.4",
+          "lower_it": "a publication pattern that matches the cluster's ordinary tempo"
+        },
+        {
+          "n": 2,
+          "category": "historical parallel",
+          "score": 3,
+          "basis": "human",
+          "receipt": "the framing mirrors the 2024 corridor outage coverage",
+          "lower_it": "a reader who can show the parallel is coincidental rather than borrowed"
+        },
+        {
+          "n": 3,
+          "category": "repetition / illusory truth",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "\"entirely avoidable\" appears in eight of nine items",
+          "lower_it": "the phrase appearing once, in the item that first reported it"
+        },
+        {
+          "n": 4,
+          "category": "loss framing",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "loss words outnumber gain words 6:1 in the lede",
+          "lower_it": "a lede that states what happened before what was lost"
+        },
+        {
+          "n": 5,
+          "category": "identity / tribal framing",
+          "score": 3,
+          "basis": "semantic",
+          "receipt": "tribal_signal p=0.61 but the answer was rejected by the gate",
+          "lower_it": "a semantic pass that clears the gate and returns a low probability"
+        },
+        {
+          "n": 6,
+          "category": "authority pressure",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "\"insiders\", \"engineers familiar with\" carry the central claim",
+          "lower_it": "one named engineer, on the record"
+        },
+        {
+          "n": 7,
+          "category": "source transparency",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "no document, filing, or dataset is linked anywhere in the cluster",
+          "lower_it": "the outage report or docket number, linked"
+        },
+        {
+          "n": 8,
+          "category": "primary documentation",
+          "score": 5,
+          "basis": "semantic",
+          "receipt": "primary_source p(true)=0.08, accepted at confidence 0.84",
+          "lower_it": "any uneditable primary record cited in the text"
+        },
+        {
+          "n": 9,
+          "category": "emotional escalation",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "VADER compound magnitude 0.74, top decile for the corpus",
+          "lower_it": "a neutral recounting of the same events"
+        },
+        {
+          "n": 10,
+          "category": "urgency injection",
+          "score": 4,
+          "basis": "semantic",
+          "receipt": "manufactured_urgency p(true)=0.89",
+          "lower_it": "a story that states the timeline without pressing for a reaction"
+        },
+        {
+          "n": 11,
+          "category": "binary framing",
+          "score": 4,
+          "basis": "semantic",
+          "receipt": "one_sided p(true)=0.93; no counter-explanation appears",
+          "lower_it": "a paragraph steel-manning the equipment-failure explanation"
+        },
+        {
+          "n": 12,
+          "category": "coordinated phrasing",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "mean pairwise 3-shingle Jaccard 0.91, no wire dateline present",
+          "lower_it": "a wire credit line that explains the shared text"
+        },
+        {
+          "n": 13,
+          "category": "amplification burst",
+          "score": 5,
+          "basis": "deterministic",
+          "receipt": "burst ratio 0.94",
+          "lower_it": "the same items spread across a week"
+        },
+        {
+          "n": 14,
+          "category": "scarcity lever",
+          "score": 2,
+          "basis": "deterministic",
+          "receipt": "one \"last chance\" construction in 612 words",
+          "lower_it": "no scarcity construction at all"
+        },
+        {
+          "n": 15,
+          "category": "social proof lever",
+          "score": 3,
+          "basis": "deterministic",
+          "receipt": "\"everyone in the corridor is asking\" appears twice",
+          "lower_it": "a count of who is actually asking"
+        },
+        {
+          "n": 16,
+          "category": "reciprocity lever",
+          "score": 1,
+          "basis": "deterministic",
+          "receipt": "no evidence found in the text",
+          "lower_it": "—"
+        },
+        {
+          "n": 17,
+          "category": "consistency lever",
+          "score": 2,
+          "basis": "deterministic",
+          "receipt": "one \"as we reported\" callback",
+          "lower_it": "a story that stands on its own evidence"
+        },
+        {
+          "n": 18,
+          "category": "dissent suppression",
+          "score": 3,
+          "basis": "human",
+          "receipt": "no dissenting view is quoted; whether one was sought is unknowable from the text",
+          "lower_it": "a reader who can show a counter-view was offered and declined"
+        },
+        {
+          "n": 19,
+          "category": "correction resistance",
+          "score": 2,
+          "basis": "human",
+          "receipt": "no correction notice on any item in the cluster",
+          "lower_it": "a correction appended after the first item"
+        },
+        {
+          "n": 20,
+          "category": "prebunk / inoculation language",
+          "score": 4,
+          "basis": "deterministic",
+          "receipt": "\"they will tell you this was weather\" appears in six items",
+          "lower_it": "no pre-emptive dismissal of the alternative explanation"
+        }
+      ],
+      "total": 68,
+      "reading": "51-75: strong engineered elements; anomalies too frequent to be coincidental",
+      "auto_rows": 17,
+      "human_rows": 3
+    }
+  },
+  {
+    "item_id": "demo-0002",
+    "narrative_id": "n-grid-blackout",
+    "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
+    "ers": 81.2,
+    "band": "saturated",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.91,
+        "note": "shares the cluster's copied phrasing, including the \"entirely avoidable\" construction"
+      },
+      {
+        "signal": "burst",
+        "value": 0.94,
+        "note": "published 41 minutes after the first item in the cluster"
+      },
+      {
+        "signal": "attribution_absence",
+        "value": 0.79,
+        "note": "quotes an unnamed \"grid insider\"; no document"
+      }
+    ],
+    "falsifiers": [
+      "a named grid operator on the record, or the outage report itself",
+      "a wire dateline or credit line explaining the shared phrasing"
+    ],
+    "lexical": {
+      "emotional_load": 0.66,
+      "absolutism": 0.58,
+      "urgency": 0.52,
+      "shout": 0.21,
+      "attribution_absence": 0.79,
+      "authority_words": 0.64,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 498
+    },
+    "cluster": {
+      "uniformity": 0.91,
+      "source_diversity": 0.22,
+      "burst": 0.94,
+      "item_count": 9,
+      "unattributed_count": 9
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "one_sided": {
+          "qid": "one_sided",
+          "type": "noul",
+          "value": 0.88,
+          "confidence": 0.76,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.88,
+            "false": 0.12
+          },
+          "label": null
+        },
+        "engineered_likelihood": {
+          "qid": "engineered_likelihood",
+          "type": "score",
+          "value": 3.0,
+          "confidence": 0.71,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "likely engineered"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 388,
+      "cached": true
+    },
+    "needs_review": false,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T14:12:09+00:00",
+    "source_domain": "dailysignal.example.test",
+    "sources": [
+      {
+        "domain": "dailysignal.example.test",
+        "title": "Grid insiders: the Vannemark blackout was entirely avoidable",
+        "url": "https://dailysignal.example.test/vannemark"
+      }
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0003",
+    "narrative_id": "n-grid-blackout",
+    "title": "What the Vannemark outage tells us about who really runs the grid",
+    "ers": 76.9,
+    "band": "saturated",
+    "mode": "semantic-partial",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.91,
+        "note": "cluster-level copied phrasing"
+      },
+      {
+        "signal": "emotional_load",
+        "value": 0.81,
+        "note": "VADER compound magnitude in the top decile for the corpus"
+      },
+      {
+        "signal": "verifiability",
+        "value": 1.0,
+        "note": "semantic answer accepted: anonymous authority only"
+      }
+    ],
+    "falsifiers": [
+      "an on-record utility statement naming the cause of the outage",
+      "a second cluster item that cites a document rather than an insider"
+    ],
+    "lexical": {
+      "emotional_load": 0.81,
+      "absolutism": 0.66,
+      "urgency": 0.44,
+      "shout": 0.28,
+      "attribution_absence": 0.83,
+      "authority_words": 0.58,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 731
+    },
+    "cluster": {
+      "uniformity": 0.91,
+      "source_diversity": 0.22,
+      "burst": 0.94,
+      "item_count": 9,
+      "unattributed_count": 9
+    },
+    "semantic": {
+      "provider": "ollama:qwen3:8b",
+      "answers": {
+        "verifiability": {
+          "qid": "verifiability",
+          "type": "score",
+          "value": 1.0,
+          "confidence": 0.74,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "anonymous authority only"
+        },
+        "genre": {
+          "qid": "genre",
+          "type": "choice",
+          "value": "opinion",
+          "confidence": 0.52,
+          "gate": "uncertain",
+          "probabilities": {
+            "opinion": 0.52,
+            "reporting": 0.41,
+            "satire": 0.04,
+            "other": 0.03
+          },
+          "label": "opinion"
+        },
+        "tribal_signal": {
+          "qid": "tribal_signal",
+          "type": "noul",
+          "value": 0.61,
+          "confidence": 0.22,
+          "gate": "reject",
+          "probabilities": {
+            "true": 0.61,
+            "false": 0.39
+          },
+          "label": null
+        }
+      },
+      "egress": "localhost:11434",
+      "latency_ms": 2140,
+      "cached": false
+    },
+    "needs_review": true,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T14:12:15+00:00",
+    "source_domain": "corridorwire.example.test",
+    "sources": [
+      {
+        "domain": "corridorwire.example.test",
+        "title": "What the Vannemark outage tells us about who really runs the grid",
+        "url": "https://corridorwire.example.test/vannemark-who-runs-the-grid"
+      }
+    ],
+    "nci_reading": "76-100: overwhelming coordination indicator; verify with conflicting sources before acting",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0004",
+    "narrative_id": "n-registry-rollout",
+    "title": "Health registry rollout paused after \"overwhelming\" public objection, ministry confirms",
+    "ers": 63.5,
+    "band": "dense",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "uniformity",
+        "value": 0.58,
+        "note": "four items reuse the same three-sentence summary block"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 0.5,
+        "note": "four items, two registrable domains"
+      },
+      {
+        "signal": "burst",
+        "value": 0.47,
+        "note": "four items in twelve hours; trailing mean 1.1"
+      },
+      {
+        "signal": "absolutism",
+        "value": 0.55,
+        "note": "\"overwhelming\", \"undeniable\", \"nobody wanted this\" per 100 words",
+        "quote": "Nobody wanted this registry, and the objection was overwhelming."
+      },
+      {
+        "signal": "manufactured_urgency",
+        "value": 0.74,
+        "note": "semantic answer accepted at confidence 0.69"
+      }
+    ],
+    "falsifiers": [
+      "the ministry's own written statement, quoted in full",
+      "a count of objections from the consultation record rather than an adjective",
+      "coverage from an outlet outside the two domains in this cluster"
+    ],
+    "lexical": {
+      "emotional_load": 0.52,
+      "absolutism": 0.55,
+      "urgency": 0.49,
+      "shout": 0.12,
+      "attribution_absence": 0.44,
+      "authority_words": 0.5,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 540
+    },
+    "cluster": {
+      "uniformity": 0.58,
+      "source_diversity": 0.5,
+      "burst": 0.47,
+      "item_count": 4,
+      "unattributed_count": 3
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.34,
+          "confidence": 0.64,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.34,
+            "false": 0.66
+          },
+          "label": null
+        },
+        "manufactured_urgency": {
+          "qid": "manufactured_urgency",
+          "type": "noul",
+          "value": 0.74,
+          "confidence": 0.69,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.74,
+            "false": 0.26
+          },
+          "label": null
+        },
+        "nimmo_d": {
+          "qid": "nimmo_d",
+          "type": "choice",
+          "value": "dismay",
+          "confidence": 0.61,
+          "gate": "accept",
+          "probabilities": {
+            "dismay": 0.61,
+            "distort": 0.2,
+            "divide": 0.12,
+            "none": 0.07
+          },
+          "label": "dismay"
+        },
+        "emotional_engineering": {
+          "qid": "emotional_engineering",
+          "type": "score",
+          "value": 2.0,
+          "confidence": 0.73,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "clearly loaded"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 356,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": "The cluster reports that a health registry rollout was paused. The ministry is named, which raises verifiability, but the scale of objection is carried entirely by adjectives (\"overwhelming\") rather than by the consultation count, and four items share a summary block.\n\nSteel-man: ministries do issue short statements that every outlet quotes identically, which inflates uniformity without any coordination.\n\nCheck next: the consultation record, and whether the ministry statement exists in full anywhere.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T13:40:22+00:00",
+    "source_domain": "example-news.test",
+    "sources": [
+      {
+        "domain": "example-news.test",
+        "title": "Health registry rollout paused after \"overwhelming\" public objection, ministry confirms",
+        "url": "https://example-news.test/registry-paused"
+      },
+      {
+        "domain": "civicledger.example.test",
+        "title": "Ministry pauses the health registry after public objection",
+        "url": "https://civicledger.example.test/registry"
+      }
+    ],
+    "nci_reading": "51-75: strong engineered elements; anomalies too frequent to be coincidental",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0005",
+    "narrative_id": "n-registry-rollout",
+    "title": "Ministry pauses the health registry after public objection",
+    "ers": 41.8,
+    "band": "watch",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "attribution_absence",
+        "value": 0.18,
+        "note": "names the ministry, the consultation, and links the notice"
+      },
+      {
+        "signal": "uniformity",
+        "value": 0.58,
+        "note": "shares the cluster summary block"
+      },
+      {
+        "signal": "verifiability",
+        "value": 3.0,
+        "note": "semantic answer accepted: named primary source"
+      }
+    ],
+    "falsifiers": [
+      "the consultation objection count, if it contradicts the article's framing",
+      "an outlet reporting the pause with a different stated cause"
+    ],
+    "lexical": {
+      "emotional_load": 0.24,
+      "absolutism": 0.16,
+      "urgency": 0.11,
+      "shout": 0.03,
+      "attribution_absence": 0.18,
+      "authority_words": 0.2,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 388
+    },
+    "cluster": {
+      "uniformity": 0.58,
+      "source_diversity": 0.5,
+      "burst": 0.47,
+      "item_count": 4,
+      "unattributed_count": 3
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.86,
+          "confidence": 0.72,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.86,
+            "false": 0.14
+          },
+          "label": null
+        },
+        "verifiability": {
+          "qid": "verifiability",
+          "type": "score",
+          "value": 3.0,
+          "confidence": 0.77,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "named primary source"
+        },
+        "genre": {
+          "qid": "genre",
+          "type": "choice",
+          "value": "reporting",
+          "confidence": 0.81,
+          "gate": "accept",
+          "probabilities": {
+            "reporting": 0.81,
+            "press_release": 0.11,
+            "opinion": 0.08
+          },
+          "label": "reporting"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 341,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T13:41:02+00:00",
+    "source_domain": "civicledger.example.test",
+    "sources": [
+      {
+        "domain": "civicledger.example.test",
+        "title": "Ministry pauses the health registry after public objection",
+        "url": "https://civicledger.example.test/registry"
+      }
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0006",
+    "narrative_id": "n-convoy-checkpoint",
+    "title": "BREAKING: convoy turned back at the Kelstone checkpoint — act before they close it for good",
+    "ers": 46.5,
+    "band": "watch",
+    "mode": "lexical-only",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "urgency",
+        "value": 0.88,
+        "note": "\"breaking\", \"act now\", \"before it is too late\" at 2.4 per 100 words",
+        "quote": "BREAKING — act now, before they close Kelstone for good!!"
+      },
+      {
+        "signal": "shout",
+        "value": 0.62,
+        "note": "caps-word ratio 0.14, exclamation density 0.9 per sentence"
+      },
+      {
+        "signal": "attribution_absence",
+        "value": 0.94,
+        "note": "no named source, no document, no quote"
+      },
+      {
+        "signal": "mode",
+        "value": "lexical-only",
+        "note": "no semantic answer cleared the confidence gate; band capped at watch"
+      }
+    ],
+    "falsifiers": [
+      "any named witness or official at the checkpoint",
+      "a photograph or record with a verifiable timestamp and location",
+      "a semantic pass that clears the gate and can raise or lower this score"
+    ],
+    "lexical": {
+      "emotional_load": 0.79,
+      "absolutism": 0.71,
+      "urgency": 0.88,
+      "shout": 0.62,
+      "attribution_absence": 0.94,
+      "authority_words": 0.41,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 143
+    },
+    "cluster": {
+      "uniformity": 0.34,
+      "source_diversity": 1.0,
+      "burst": 0.72,
+      "item_count": 2,
+      "unattributed_count": 2
+    },
+    "semantic": null,
+    "needs_review": true,
+    "brief": "A short, high-urgency post about a convoy turned back at a checkpoint. Every deterministic stylistic signal is elevated and nothing in the text can be checked: no name, no document, no timestamped record.\n\nSteel-man: eyewitness posts written in the moment legitimately read like this, and urgency is not evidence of engineering.\n\nBecause no semantic answer cleared the gate, this score is lexical-only and the band is capped at watch. Check next: whether any account with a location history posted the same scene.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T15:02:51+00:00",
+    "source_domain": "shortpost.example.test",
+    "sources": [
+      {
+        "domain": "shortpost.example.test",
+        "title": "BREAKING: convoy turned back at the Kelstone checkpoint",
+        "url": "https://shortpost.example.test/p/88213"
+      }
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0007",
+    "narrative_id": "n-recall-petition",
+    "title": "Everyone knows the recall petition was rigged, say organizers of the recall petition",
+    "ers": 31.7,
+    "band": "watch",
+    "mode": "lexical-only",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "absolutism",
+        "value": 0.68,
+        "note": "\"everyone knows\", \"nobody disputes\", \"proven\" at 1.9 per 100 words",
+        "quote": "Everyone knows the petition was rigged; nobody disputes it at this point."
+      },
+      {
+        "signal": "authority_words",
+        "value": 0.46,
+        "note": "\"organizers say\" is the only sourcing for the central claim"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 1.0,
+        "note": "single item, single domain; no cluster to compare against"
+      },
+      {
+        "signal": "mode",
+        "value": "lexical-only",
+        "note": "Ollama unreachable and no key present; heuristic provider never accepts"
+      }
+    ],
+    "falsifiers": [
+      "the petition signature audit, or any count from the returning officer",
+      "a quote from someone who is not an organizer of the petition",
+      "a semantic pass that clears the gate"
+    ],
+    "lexical": {
+      "emotional_load": 0.41,
+      "absolutism": 0.68,
+      "urgency": 0.22,
+      "shout": 0.09,
+      "attribution_absence": 0.57,
+      "authority_words": 0.46,
+      "attributed_syndication": false,
+      "syndication_source": null,
+      "word_count": 402
+    },
+    "cluster": {
+      "uniformity": 0.0,
+      "source_diversity": 1.0,
+      "burst": 0.18,
+      "item_count": 1,
+      "unattributed_count": 1
+    },
+    "semantic": null,
+    "needs_review": true,
+    "brief": null,
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T12:19:07+00:00",
+    "source_domain": "countyclarion.example.test",
+    "sources": [
+      {
+        "domain": "countyclarion.example.test",
+        "title": "Everyone knows the recall petition was rigged, say organizers",
+        "url": "https://countyclarion.example.test/recall-rigged"
+      }
+    ],
+    "nci_reading": "26-50: moderate; consistent with ordinary media sensationalism or spin",
+    "worksheet": null
+  },
+  {
+    "item_id": "demo-0008",
+    "narrative_id": "n-harbor-dredging",
+    "title": "Harbor dredging permit granted; the sediment survey is attached to the filing",
+    "ers": 14.3,
+    "band": "quiet",
+    "mode": "semantic",
+    "bank": "provisional",
+    "evidence": [
+      {
+        "signal": "attribution_absence",
+        "value": 0.08,
+        "note": "names the port authority, the permit number, and links the sediment survey",
+        "quote": "Port authority director Imelda Rask said permit 4471 was granted with the sediment survey attached."
+      },
+      {
+        "signal": "uniformity",
+        "value": 0.11,
+        "note": "three items in the cluster share only the permit number"
+      },
+      {
+        "signal": "source_diversity",
+        "value": 1.0,
+        "note": "three items, three registrable domains"
+      },
+      {
+        "signal": "verifiability",
+        "value": 4.0,
+        "note": "semantic answer accepted: primary source plus document link"
+      }
+    ],
+    "falsifiers": [
+      "the attached survey failing to match the permit it is filed under",
+      "a second outlet reporting a different permit number for the same dredging",
+      "any indication that the port authority quote was not on the record"
+    ],
+    "lexical": {
+      "emotional_load": 0.12,
+      "absolutism": 0.04,
+      "urgency": 0.03,
+      "shout": 0.01,
+      "attribution_absence": 0.08,
+      "authority_words": 0.06,
+      "attributed_syndication": true,
+      "syndication_source": "example-wire.test",
+      "word_count": 476
+    },
+    "cluster": {
+      "uniformity": 0.11,
+      "source_diversity": 1.0,
+      "burst": 0.05,
+      "item_count": 3,
+      "unattributed_count": 1
+    },
+    "semantic": {
+      "provider": "jev",
+      "answers": {
+        "primary_source": {
+          "qid": "primary_source",
+          "type": "noul",
+          "value": 0.95,
+          "confidence": 0.9,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.95,
+            "false": 0.05
+          },
+          "label": null
+        },
+        "one_sided": {
+          "qid": "one_sided",
+          "type": "noul",
+          "value": 0.12,
+          "confidence": 0.76,
+          "gate": "accept",
+          "probabilities": {
+            "true": 0.12,
+            "false": 0.88
+          },
+          "label": null
+        },
+        "verifiability": {
+          "qid": "verifiability",
+          "type": "score",
+          "value": 4.0,
+          "confidence": 0.88,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "primary source plus document/data link"
+        },
+        "engineered_likelihood": {
+          "qid": "engineered_likelihood",
+          "type": "score",
+          "value": 0.0,
+          "confidence": 0.85,
+          "gate": "accept",
+          "probabilities": {},
+          "label": "organic"
+        }
+      },
+      "egress": "api.example-provider.test",
+      "latency_ms": 298,
+      "cached": false
+    },
+    "needs_review": false,
+    "brief": "A permit story with the underlying document attached. The named authority, the permit number, and the linked survey put every central claim within reach of a reader, and the three items in the cluster differ in phrasing. One is wire-attributed and is excluded from the uniformity term.\n\nNothing here needs investigating beyond reading the filing.",
+    "disclaimer": "Signals to investigate, not an attribution of intent or actor.",
+    "generated": "2026-09-21T11:05:44+00:00",
+    "source_domain": "portrecord.example.test",
+    "sources": [
+      {
+        "domain": "portrecord.example.test",
+        "title": "Harbor dredging permit granted; the sediment survey is attached to the filing",
+        "url": "https://portrecord.example.test/permit-4471"
+      },
+      {
+        "domain": "example-wire.test",
+        "title": "Port authority grants dredging permit",
+        "url": "https://example-wire.test/dredging-permit"
+      },
+      {
+        "domain": "harbourjournal.example.test",
+        "title": "Dredging permit 4471 clears review",
+        "url": "https://harbourjournal.example.test/4471"
+      }
+    ],
+    "nci_reading": "0-25: low probability of an engineered operation; likely organic",
+    "worksheet": null
+  }
+]
