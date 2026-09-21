@@ -1,0 +1,101 @@
+{
+  "version": "0.1-provisional",
+  "note": "Provisional bank distilled from indexed summaries of Roemmele's 'Psyop AI Prompt Detector' (2026-06-24), the Deep Truth Mode ethos, SemEval-2020 T11 techniques, and Nimmo's Ds. Reconcile against the actual transcript via docs/RECONCILE.md. Ids are not sent to the model; instructions carry the full meaning.",
+  "questions": {
+    "primary_source": {
+      "type": "noul",
+      "instructions": "Does the text cite a verifiable primary source, such as a named document, dataset, court filing, on-record named witness, or official record, rather than only anonymous or secondary authority?",
+      "criteria": {"true": "At least one named, checkable primary source is cited", "false": "Only anonymous sources, unnamed experts, or other outlets are cited, or no source at all"}
+    },
+    "manufactured_urgency": {
+      "type": "noul",
+      "instructions": "Does the text press the reader to feel that immediate action or belief is required, beyond what the stated facts justify?"
+    },
+    "one_sided": {
+      "type": "noul",
+      "instructions": "On a contested matter, does the text present only one side while omitting or dismissing plausible counter-explanations that a careful reader would expect to see addressed? Answer false for straightforward factual reports with nothing contested."
+    },
+    "tribal_signal": {
+      "type": "noul",
+      "instructions": "Does the text frame the matter as in-group versus out-group (us versus them, patriots versus traitors, real people versus elites) rather than as a factual question?"
+    },
+    "genre": {
+      "type": "choice",
+      "instructions": "What kind of text is this, judged by its form and voice?",
+      "criteria": {
+        "reporting": "News report: who, what, when, where, attributed claims",
+        "opinion": "Editorial, column, or argued essay with a stated point of view",
+        "satire": "Humor or parody not meant to be read literally",
+        "press_release": "Organizational announcement in promotional voice",
+        "advertorial": "Commercial persuasion disguised as content",
+        "social_post": "Short social-media style post or thread",
+        "other": "None of the above fits"
+      }
+    },
+    "technique": {
+      "type": "choice",
+      "instructions": "Which persuasion technique is most prominent in the text, if any?",
+      "criteria": {
+        "loaded_language": "Emotionally charged words chosen to sway rather than describe",
+        "name_calling": "Labeling a target with insulting or dismissive terms",
+        "exaggeration": "Overstating or understating scale, effect, or certainty",
+        "doubt": "Questioning credibility without evidence",
+        "appeal_to_fear": "Promoting support by instilling fear or anxiety",
+        "flag_waving": "Justifying by appeal to national or group identity",
+        "causal_oversimplification": "Assuming one cause when several exist",
+        "slogans": "Brief striking phrases carrying emotional appeal",
+        "appeal_to_authority": "Claim is true because an authority said so, without evidence",
+        "black_and_white": "Presenting only two options when more exist",
+        "thought_terminating_cliche": "Phrases that discourage critical thought",
+        "bandwagon": "Everyone agrees, so you should too",
+        "whataboutism_red_herring": "Deflecting by pointing elsewhere or introducing irrelevant material",
+        "none": "No prominent persuasion technique"
+      }
+    },
+    "nimmo_d": {
+      "type": "choice",
+      "instructions": "Which narrative move dominates the text, if any?",
+      "criteria": {
+        "dismiss": "Attacks or dismisses critics or the messenger",
+        "distort": "Twists facts or reframes events to fit a narrative",
+        "distract": "Changes the subject or points elsewhere",
+        "dismay": "Aims to frighten, demoralize, or overwhelm",
+        "divide": "Sets groups against each other",
+        "none": "No such move dominates"
+      }
+    },
+    "emotional_engineering": {
+      "type": "score",
+      "instructions": "How engineered is the emotional response the text aims for?",
+      "criteria": [
+        "Neutral report; emotion arises only from the facts",
+        "Mild coloring; a few charged words",
+        "Clearly loaded; word choice steers feeling throughout",
+        "Designed to inflame; outrage or fear is the point",
+        "Pure outrage bait; almost no informational content"
+      ]
+    },
+    "verifiability": {
+      "type": "score",
+      "instructions": "How verifiable are the central claims from the text alone?",
+      "criteria": [
+        "Unverifiable assertions with no sourcing",
+        "Anonymous authority only (sources say, experts warn)",
+        "Named secondary sources (other outlets, named commentators)",
+        "Named primary source (document, official record, on-record witness)",
+        "Primary source plus a link or citation to the document or data"
+      ]
+    },
+    "engineered_likelihood": {
+      "type": "score",
+      "instructions": "Overall, judged from the text alone, how much does this read like an engineered narrative built to move an audience rather than organic reporting or honest argument?",
+      "criteria": [
+        "Organic: reads like ordinary reporting or honest argument",
+        "Slightly shaped: some framing choices but nothing systematic",
+        "Shaped: consistent framing, selective emphasis",
+        "Likely engineered: multiple techniques working together",
+        "Textbook engineered: urgency, tribal framing, unverifiable claims, and loaded language together"
+      ]
+    }
+  }
+}

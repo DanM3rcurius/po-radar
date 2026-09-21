@@ -155,3 +155,17 @@ Order: `PORADAR_PROVIDER` env if set; else Jev if `TYPESAFE_API_KEY`/`OPENROUTER
 ## 12. Out of scope (v0.1)
 
 Account/network metadata signals (need platform APIs); image/video forensics; multilingual lexicons; fine-tuned local classifiers (SetFit/NLI) — the provider interface leaves room for them.
+
+## 13. Premortem revisions (2026-09-21, supersede earlier sections where they conflict)
+
+Full transcript: `docs/premortem/2026-09-21-premortem-transcript.md`.
+
+1. **Hero loop.** `poradar scan <file|url|->` must work with zero keys, no network, in under 2 s, printing band, evidence, falsifiers, and a template brief. `watch`, `serve`, and the MCP bank are secondary.
+2. **Local by default, cloud by consent.** Provider order is heuristic → Ollama (if reachable) unless `--cloud` or `PORADAR_ALLOW_CLOUD=1` is set, in which case Jev is used when a key exists. An `egress:` line prints before any network call. stdin text is never sent to a cloud provider unless `--allow-stdin-egress` is also passed.
+3. **Jev state is evidence only.** `{title, source_domain, published, excerpt}`. No signal numbers, no verdicts. A test asserts the request body has no `signals` key.
+4. **Fusion honesty.** Rejected semantic weight redistributes only among accepted semantic terms. If no semantic term is accepted, the band is capped at "watch" and the result carries `mode: "lexical-only"`. Results fail closed: serialization requires non-empty `evidence` and `falsifiers`, and every result carries the disclaimer string.
+5. **Syndication is not copypasta.** `signals/syndication.py` detects wire attribution (dateline patterns like `CITY (AP) —`, wire bylines, wire copyright footers). Attributed items are excluded from `uniformity` and `source_diversity`. Boilerplate (cookie, subscribe, nav phrases) is stripped before shingling. The MinHash threshold is pinned by golden duplicate/unrelated pairs.
+6. **One local call.** The Ollama provider answers all questions in one `/api/chat` call with a single JSON schema; confidence is self-reported but capped at 0.8 and labeled as such; results are cached by content hash.
+7. **Ingestion health.** Per-feed last success, consecutive failures, and a dead flag appear in `doctor` and `report`. Extractions under a minimum length or over a boilerplate-density threshold are tagged `ingest_rejected` and never scored. Feed-provided content is preferred over scraping.
+8. **Question bank is data.** `src/poradar/questions.json` is the single source the code loads. `poradar questions show|import <file>` exist. `docs/RECONCILE.md` is the checklist for reconciling with the actual transcript; until it is checked off, output carries `bank: "provisional"`.
+9. **Not an accusation machine.** Bands are renamed to signal-density language: `quiet` (0–24), `watch` (25–49), `dense` (50–74), `saturated` (75–100). Blips are keyed by narrative id, never by outlet; the blip label carries the top falsifier; every export burns in: "Signals to investigate, not an attribution of intent or actor."
