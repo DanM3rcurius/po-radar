@@ -76,6 +76,8 @@ async def test_ollama_single_batched_call():
     assert route.call_count == 1
     sent = json.loads(route.calls[0].request.content)
     assert sent["format"]["type"] == "object" and sent["stream"] is False
+    assert sent["options"] == {"temperature": 0}
+    assert '"enum"' in sent["messages"][1]["content"]  # schema also passed as text, per Ollama docs
     assert resp["g"].value == "opinion"
 
 

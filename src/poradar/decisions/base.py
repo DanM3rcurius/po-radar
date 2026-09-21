@@ -107,7 +107,7 @@ class ChoiceAnswer(BaseModel):
 class ScoreAnswer(BaseModel):
     type: Literal["score"] = "score"
     score: float
-    legend: dict[str, str] = Field(default_factory=dict)
+    legend: dict[str, Any] = Field(default_factory=dict)  # values are strings or {"what": ..., "examples": [...]}
     probabilities: dict[str, float] = Field(default_factory=dict)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
 
@@ -122,7 +122,10 @@ class ScoreAnswer(BaseModel):
 
     @property
     def label(self) -> str:
-        return self.legend.get(str(self.level), str(self.level))
+        lv = self.legend.get(str(self.level), str(self.level))
+        if isinstance(lv, dict):
+            return str(lv.get("what") or lv.get("description") or lv)
+        return str(lv)
 
 
 Answer = Union[NoulAnswer, ChoiceAnswer, ScoreAnswer]

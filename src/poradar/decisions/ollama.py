@@ -85,7 +85,9 @@ def prompt_for(request: DecisionRequest) -> str:
             lv = "; ".join(f"{i} = {lvl}" for i, lvl in enumerate(q.criteria))
             lines.append(f"- {qid} (integer level): {instr} Levels: {lv}")
     lines.append("")
-    lines.append("Answer with JSON only, matching the schema.")
+    # Ollama's docs recommend also passing the schema as text to ground the response.
+    lines.append("Answer with JSON only, matching this schema exactly:")
+    lines.append(json.dumps(schema_for(request)))
     return "\n".join(lines)
 
 

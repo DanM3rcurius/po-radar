@@ -125,3 +125,14 @@ async def test_evaluate_non_retryable_error_raises_without_retry():
     with pytest.raises(RuntimeError, match="400"):
         await p.evaluate(DecisionRequest(state="s", questions={"q": noul("u?")}))
     assert route.call_count == 1
+
+
+def test_score_legend_may_be_objects():
+    from poradar.decisions import ScoreAnswer
+
+    a = ScoreAnswer(score=1.06, confidence=0.91, legend={
+        "0": {"what": "Cosmetic", "examples": ["typo"]},
+        "1": {"what": "Broken but workaround exists", "examples": ["export fails"]},
+        "2": {"what": "Blocking", "examples": ["cannot log in"]},
+    }, probabilities={"0": 0.0, "1": 0.94, "2": 0.06})
+    assert a.level == 1 and a.label == "Broken but workaround exists"

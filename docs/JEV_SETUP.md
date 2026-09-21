@@ -27,6 +27,11 @@ poradar dryrun --cloud        # one real call on a bundled fixture; writes nothi
 poradar scan article.txt --cloud
 ```
 
+Response fields, verified against docs.typesafe.ai: choice answers carry `choice`, `probabilities`,
+`confidence`; score answers carry `score`, `legend`, `probabilities`, `confidence`; noul answers carry
+only `noul` (near 0.5 means uncertain, not medium). TypeSafe's own guidance uses a 0.5 confidence floor
+for "genuinely unsure" and 0.9 for high-stakes actions; this app accepts at 0.6 and holds 0.3 to 0.6.
+
 What Jev receives per item: `{"title", "source_domain", "published", "excerpt"}`; nothing else. What
 comes back is gated in code (`decisions/gate.py`): accept at confidence 0.6 or above, uncertain between
 0.3 and 0.6 (half weight, flagged for review), reject below.

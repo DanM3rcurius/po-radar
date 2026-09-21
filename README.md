@@ -26,8 +26,8 @@ score capped at "watch", labeled as such. That is honest degraded mode, not a ve
 ## Add a semantic layer
 
 - **Local:** run [Ollama](https://ollama.com) with a small instruct model (`ollama pull qwen3:8b`).
-  `poradar` detects it and answers all ten questions in one structured-output call. Confidence is
-  self-reported and capped at 0.8.
+  `poradar` detects it and answers every question in one structured-output call (`format` = JSON
+  schema on `/api/chat`, verified against Ollama's API docs). Confidence is self-reported and capped at 0.8.
 - **Jev (cloud, opt-in):** set `OPENROUTER_API_KEY` or `TYPESAFE_API_KEY` in your shell, then pass
   `--cloud` (or `PORADAR_ALLOW_CLOUD=1`). Every run prints an `egress:` line before anything is sent.
   Jev receives only `{title, source_domain, published, excerpt}`, never signal numbers or personal data.
